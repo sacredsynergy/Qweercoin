@@ -1,0 +1,7 @@
+[main]
+host = https://www.transifex.com
+
+[qweercoin.qt-translation-021x]
+file_filter = src/qt/locale/qweercoin_<lang>.ts
+source_file = src/qt/locale/qweercoin_en.ts
+source_lang = en

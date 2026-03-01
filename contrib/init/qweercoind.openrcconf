@@ -1,0 +1,33 @@
+# /etc/conf.d/qweercoind: config file for /etc/init.d/qweercoind
+
+# Config file location
+#QWEERCOIND_CONFIGFILE="/etc/qweercoin/qweercoin.conf"
+
+# What directory to write pidfile to?  (created and owned by $QWEERCOIND_USER)
+#QWEERCOIND_PIDDIR="/var/run/qweercoind"
+
+# What filename to give the pidfile
+#QWEERCOIND_PIDFILE="${QWEERCOIND_PIDDIR}/qweercoind.pid"
+
+# Where to write qweercoind data (be mindful that the blockchain is large)
+#QWEERCOIND_DATADIR="/var/lib/qweercoind"
+
+# User and group to own qweercoind process
+#QWEERCOIND_USER="qweercoin"
+#QWEERCOIND_GROUP="qweercoin"
+
+# Path to qweercoind executable
+#QWEERCOIND_BIN="/usr/bin/qweercoind"
+
+# Nice value to run qweercoind under
+#QWEERCOIND_NICE=0
+
+# Additional options (avoid -conf and -datadir, use flags above)
+#QWEERCOIND_OPTS=""
+
+# The timeout in seconds OpenRC will wait for qweercoind to terminate
+# after a SIGTERM has been raised.
+# Note that this will be mapped as argument to start-stop-daemon's
+# '--retry' option, which means you can specify a retry schedule
+# here. For more information see man 8 start-stop-daemon.
+QWEERCOIND_SIGTERM_TIMEOUT=600

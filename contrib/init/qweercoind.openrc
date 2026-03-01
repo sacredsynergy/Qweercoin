@@ -1,0 +1,92 @@
+#!/sbin/openrc-run
+
+# backward compatibility for existing gentoo layout 
+#
+if [ -d "/var/lib/qweercoin/.qweercoin" ]; then
+	QWEERCOIND_DEFAULT_DATADIR="/var/lib/qweercoin/.qweercoin"
+else
+	QWEERCOIND_DEFAULT_DATADIR="/var/lib/qweercoind"
+fi
+
+QWEERCOIND_CONFIGFILE=${QWEERCOIND_CONFIGFILE:-/etc/qweercoin/qweercoin.conf}
+QWEERCOIND_PIDDIR=${QWEERCOIND_PIDDIR:-/var/run/qweercoind}
+QWEERCOIND_PIDFILE=${QWEERCOIND_PIDFILE:-${QWEERCOIND_PIDDIR}/qweercoind.pid}
+QWEERCOIND_DATADIR=${QWEERCOIND_DATADIR:-${QWEERCOIND_DEFAULT_DATADIR}}
+QWEERCOIND_USER=${QWEERCOIND_USER:-${QWEERCOIN_USER:-qweercoin}}
+QWEERCOIND_GROUP=${QWEERCOIND_GROUP:-qweercoin}
+QWEERCOIND_BIN=${QWEERCOIND_BIN:-/usr/bin/qweercoind}
+QWEERCOIND_NICE=${QWEERCOIND_NICE:-${NICELEVEL:-0}}
+QWEERCOIND_OPTS="${QWEERCOIND_OPTS:-${QWEERCOIN_OPTS}}"
+
+name="Qweercoin Core Daemon"
+description="Qweercoin cryptocurrency P2P network daemon"
+
+command="/usr/bin/qweercoind"
+command_args="-pid=\"${QWEERCOIND_PIDFILE}\" \
+		-conf=\"${QWEERCOIND_CONFIGFILE}\" \
+		-datadir=\"${QWEERCOIND_DATADIR}\" \
+		-daemon \
+		${QWEERCOIND_OPTS}"
+
+required_files="${QWEERCOIND_CONFIGFILE}"
+start_stop_daemon_args="-u ${QWEERCOIND_USER} \
+			-N ${QWEERCOIND_NICE} -w 2000"
+pidfile="${QWEERCOIND_PIDFILE}"
+
+# The retry schedule to use when stopping the daemon. Could be either
+# a timeout in seconds or multiple signal/timeout pairs (like
+# "SIGKILL/180 SIGTERM/300")
+retry="${QWEERCOIND_SIGTERM_TIMEOUT}"
+
+depend() {
+	need localmount net
+}
+
+# verify
+# 1) that the datadir exists and is writable (or create it)
+# 2) that a directory for the pid exists and is writable
+# 3) ownership and permissions on the config file
+start_pre() {
+	checkpath \
+	-d \
+	--mode 0750 \
+	--owner "${QWEERCOIND_USER}:${QWEERCOIND_GROUP}" \
+	"${QWEERCOIND_DATADIR}"
+
+	checkpath \
+	-d \
+	--mode 0755 \
+	--owner "${QWEERCOIND_USER}:${QWEERCOIND_GROUP}" \
+	"${QWEERCOIND_PIDDIR}"
+
+	checkpath -f \
+	-o ${QWEERCOIND_USER}:${QWEERCOIND_GROUP} \
+	-m 0660 \
+	${QWEERCOIND_CONFIGFILE}
+
+	checkconfig || return 1
+}
+
+checkconfig()
+{
+	if ! grep -qs '^rpcpassword=' "${QWEERCOIND_CONFIGFILE}" ; then
+		eerror ""
+		eerror "ERROR: You must set a secure rpcpassword to run qweercoind."
+		eerror "The setting must appear in ${QWEERCOIND_CONFIGFILE}"
+		eerror ""
+		eerror "This password is security critical to securing wallets "
+		eerror "and must not be the same as the rpcuser setting."
+		eerror "You can generate a suitable random password using the following "
+		eerror "command from the shell:"
+		eerror ""
+		eerror "bash -c 'tr -dc a-zA-Z0-9 < /dev/urandom | head -c32 && echo'"
+		eerror ""
+		eerror "It is recommended that you also set alertnotify so you are "
+		eerror "notified of problems:"
+		eerror ""
+		eerror "ie: alertnotify=echo %%s | mail -s \"Qweercoin Alert\"" \
+			"admin@foo.com"
+		eerror ""
+		return 1
+	fi
+}
