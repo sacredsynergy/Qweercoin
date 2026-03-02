@@ -7,14 +7,12 @@
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;900&display=swap" rel="stylesheet" />
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-
+    html { scroll-behavior: smooth; }
     body {
       min-height: 100vh;
       background: #5599cc url('bg.jpg') center center / cover no-repeat fixed;
       font-family: 'Nunito', sans-serif;
-      color: #1a0a00;
     }
-
     body::before {
       content: '';
       position: fixed;
@@ -23,25 +21,55 @@
       z-index: 0;
     }
 
+    /* ── Sticky OS nav ── */
+    .os-nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(10,15,30,0.88);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(255,215,0,0.18);
+      display: flex;
+      justify-content: center;
+      gap: 0.6rem;
+      padding: 0.75rem 1rem;
+    }
+    .os-btn {
+      padding: 0.5rem 1.4rem;
+      border-radius: 30px;
+      font-family: 'Nunito', sans-serif;
+      font-size: 0.92rem;
+      font-weight: 900;
+      text-decoration: none;
+      letter-spacing: 0.04em;
+      border: 2px solid rgba(255,215,0,0.3);
+      color: rgba(255,240,160,0.7);
+      background: rgba(255,215,0,0.06);
+      transition: all 0.18s;
+      cursor: pointer;
+    }
+    .os-btn:hover, .os-btn.active {
+      background: rgba(255,215,0,0.18);
+      border-color: rgba(255,215,0,0.7);
+      color: #ffd700;
+    }
+
     .page {
       position: relative;
       z-index: 1;
       max-width: 820px;
       margin: 0 auto;
-      padding: 3rem 1.5rem 6rem;
+      padding: 2.5rem 1.5rem 6rem;
     }
-
     .back {
       display: inline-block;
-      margin-bottom: 2rem;
+      margin-bottom: 1.8rem;
       color: rgba(255,240,160,0.85);
       text-decoration: none;
       font-weight: 700;
       font-size: 0.95rem;
-      letter-spacing: 0.04em;
     }
     .back:hover { color: #fff; }
-
     h1 {
       font-size: clamp(2rem, 5vw, 3rem);
       font-weight: 900;
@@ -51,115 +79,105 @@
       background-clip: text;
       margin-bottom: 0.4rem;
     }
-
     .subtitle {
       color: rgba(255,240,160,0.8);
       font-size: 1.05rem;
-      margin-bottom: 0.6rem;
+      margin-bottom: 2rem;
       font-weight: 600;
     }
 
-    .beginner-badge {
-      display: inline-block;
-      background: rgba(255,215,0,0.18);
-      border: 1px solid rgba(255,215,0,0.4);
-      border-radius: 20px;
-      padding: 0.3rem 0.9rem;
-      font-size: 0.82rem;
-      font-weight: 700;
-      color: #ffd700;
-      letter-spacing: 0.05em;
-      margin-bottom: 2.2rem;
+    /* ── OS section dividers ── */
+    .os-section {
+      scroll-margin-top: 60px;
+    }
+    .os-header {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      margin: 2.5rem 0 1.2rem;
+      padding-bottom: 0.8rem;
+      border-bottom: 2px solid rgba(255,215,0,0.3);
+    }
+    .os-header .icon { font-size: 1.8rem; }
+    .os-header h2 {
+      font-size: 1.5rem;
+      font-weight: 900;
+      background: linear-gradient(to right, #fff5c0, #ffd700);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
 
+    /* ── Cards ── */
     .card {
       background: rgba(255,255,255,0.08);
       border: 1px solid rgba(255,215,0,0.22);
-      border-radius: 18px;
-      padding: 1.8rem 2rem;
-      margin-bottom: 1.4rem;
+      border-radius: 16px;
+      padding: 1.6rem 1.8rem;
+      margin-bottom: 1.2rem;
       backdrop-filter: blur(10px);
     }
-
     .card.intro {
       border-color: rgba(255,215,0,0.35);
       background: rgba(255,215,0,0.06);
     }
-
-    h2 {
-      font-size: 1.2rem;
+    .step-title {
+      font-size: 1.05rem;
       font-weight: 900;
       color: #ffd700;
-      margin-bottom: 1rem;
+      margin-bottom: 0.8rem;
       display: flex;
       align-items: center;
-      gap: 0.6rem;
+      gap: 0.5rem;
     }
-
-    h2 .num {
+    .step-title .num {
       background: linear-gradient(to bottom, #ffd700, #c88000);
       color: #3a1800;
       border-radius: 50%;
-      width: 2rem;
-      height: 2rem;
+      width: 1.8rem; height: 1.8rem;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      font-size: 0.92rem;
+      font-size: 0.85rem;
       flex-shrink: 0;
     }
-
-    h3 {
-      font-size: 1rem;
-      font-weight: 900;
-      color: rgba(255,230,120,0.95);
-      margin: 1.2rem 0 0.5rem;
-    }
-
     p {
       color: rgba(255,255,255,0.88);
       line-height: 1.75;
-      margin-bottom: 0.75rem;
+      margin-bottom: 0.7rem;
       font-size: 0.97rem;
     }
-
     p:last-child { margin-bottom: 0; }
-
-    ul, ol {
+    ol, ul {
       color: rgba(255,255,255,0.88);
       line-height: 1.75;
       font-size: 0.97rem;
       padding-left: 1.4rem;
-      margin-bottom: 0.75rem;
+      margin-bottom: 0.7rem;
     }
-
-    li { margin-bottom: 0.35rem; }
-
+    li { margin-bottom: 0.3rem; }
     code { font-family: 'Courier New', monospace; }
-
     pre {
       background: rgba(0,0,0,0.5);
       border: 1px solid rgba(255,215,0,0.2);
       border-radius: 10px;
-      padding: 1rem 1.2rem;
-      margin: 0.8rem 0;
+      padding: 0.9rem 1.1rem;
+      margin: 0.5rem 0 0.8rem;
       overflow-x: auto;
       font-size: 0.87rem;
       color: #ffe878;
       line-height: 1.65;
-      position: relative;
+      font-family: 'Courier New', monospace;
     }
-
     .copy-hint {
-      font-size: 0.75rem;
+      font-size: 0.74rem;
       color: rgba(255,215,0,0.5);
       font-family: 'Nunito', sans-serif;
       display: block;
-      margin-bottom: 0.3rem;
+      margin-bottom: 0.2rem;
       font-weight: 700;
       letter-spacing: 0.05em;
     }
-
     code.inline {
       background: rgba(255,215,0,0.15);
       border-radius: 4px;
@@ -167,117 +185,77 @@
       font-size: 0.9em;
       color: #ffd700;
     }
-
     .note {
       background: rgba(255,215,0,0.08);
       border-left: 3px solid #ffd700;
       border-radius: 0 8px 8px 0;
-      padding: 0.85rem 1.1rem;
-      margin-top: 0.9rem;
+      padding: 0.8rem 1rem;
+      margin: 0.8rem 0 0.2rem;
       color: rgba(255,240,180,0.92);
-      font-size: 0.93rem;
+      font-size: 0.92rem;
       line-height: 1.65;
     }
-
     .warning {
       background: rgba(255,140,0,0.1);
       border-left: 3px solid #ff9500;
       border-radius: 0 8px 8px 0;
-      padding: 0.85rem 1.1rem;
-      margin-top: 0.9rem;
+      padding: 0.8rem 1rem;
+      margin: 0.8rem 0 0.2rem;
       color: rgba(255,220,160,0.92);
-      font-size: 0.93rem;
+      font-size: 0.92rem;
       line-height: 1.65;
     }
-
     .success {
       background: rgba(100,255,150,0.07);
       border-left: 3px solid #4cff80;
       border-radius: 0 8px 8px 0;
-      padding: 0.85rem 1.1rem;
-      margin-top: 0.9rem;
+      padding: 0.8rem 1rem;
+      margin: 0.8rem 0 0.2rem;
       color: rgba(200,255,220,0.92);
-      font-size: 0.93rem;
+      font-size: 0.92rem;
       line-height: 1.65;
     }
-
     .terminal-demo {
       background: #1a1a1a;
       border: 1px solid #444;
       border-radius: 10px;
       overflow: hidden;
-      margin: 0.9rem 0;
-      font-size: 0.87rem;
+      margin: 0.8rem 0;
+      font-size: 0.86rem;
     }
-
     .terminal-bar {
       background: #333;
-      padding: 0.45rem 0.8rem;
+      padding: 0.4rem 0.8rem;
       display: flex;
       align-items: center;
       gap: 0.4rem;
     }
-
-    .terminal-bar span {
-      width: 10px; height: 10px; border-radius: 50%;
-      display: inline-block;
-    }
-
+    .terminal-bar span { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
     .dot-r { background: #ff5f57; }
     .dot-y { background: #febc2e; }
     .dot-g { background: #28c840; }
-
-    .terminal-bar .title-text {
-      width: auto; height: auto; border-radius: 0;
-      color: rgba(255,255,255,0.5);
+    .terminal-bar .ttitle {
+      width: auto; height: auto; border-radius: 0; background: none;
+      color: rgba(255,255,255,0.45);
       font-family: 'Nunito', sans-serif;
-      font-size: 0.78rem;
-      margin-left: auto; margin-right: auto;
-      background: none;
+      font-size: 0.76rem;
+      margin: 0 auto;
     }
-
     .terminal-body {
-      padding: 0.9rem 1.1rem;
+      padding: 0.8rem 1rem;
       color: #ffe878;
       font-family: 'Courier New', monospace;
       line-height: 1.7;
     }
-
     .terminal-body .prompt { color: #4cff80; }
     .terminal-body .output { color: rgba(255,255,255,0.75); }
-    .terminal-body .comment { color: rgba(255,255,255,0.4); }
-
-    .step-os {
-      display: flex;
-      gap: 0.7rem;
-      margin-bottom: 1rem;
-      flex-wrap: wrap;
-    }
-
-    .os-tab {
-      background: rgba(255,255,255,0.08);
-      border: 1px solid rgba(255,215,0,0.2);
-      border-radius: 8px;
-      padding: 0.4rem 0.9rem;
-      font-size: 0.85rem;
-      font-weight: 700;
-      color: rgba(255,240,160,0.7);
-      cursor: pointer;
-    }
-
-    .os-tab.active {
-      background: rgba(255,215,0,0.15);
-      border-color: rgba(255,215,0,0.5);
-      color: #ffd700;
-    }
-
-    .btn {
+    .dl-btn {
       display: inline-block;
-      margin-top: 1rem;
-      padding: 0.75rem 2rem;
+      margin: 0.6rem 0 0.8rem;
+      padding: 0.7rem 1.8rem;
       border-radius: 50px;
       font-family: 'Nunito', sans-serif;
-      font-size: 1rem;
+      font-size: 0.97rem;
       font-weight: 900;
       text-decoration: none;
       color: #fff5a0;
@@ -285,259 +263,436 @@
         #fff5a0 0%, #ffd700 8%, #e8a800 20%, #c88000 35%,
         #e8a800 50%, #ffd700 65%, #c88000 80%, #a06000 100%);
       border: 2px solid #8b5e00;
-      box-shadow:
-        inset 0 3px 2px rgba(255,255,180,0.7),
+      box-shadow: inset 0 3px 2px rgba(255,255,180,0.7),
         inset 0 -3px 2px rgba(100,55,0,0.5),
-        0 4px 18px rgba(200,140,0,0.5),
-        0 2px 8px rgba(0,0,0,0.3);
+        0 4px 16px rgba(200,140,0,0.5), 0 2px 6px rgba(0,0,0,0.3);
       transition: transform 0.12s, filter 0.12s;
     }
-    .btn:hover { transform: translateY(-2px); filter: brightness(1.1); }
-
+    .dl-btn:hover { transform: translateY(-2px); filter: brightness(1.1); }
     .faq-q {
       font-weight: 900;
       color: #ffd700;
-      margin-bottom: 0.3rem;
-      margin-top: 1.1rem;
+      margin-bottom: 0.25rem;
+      margin-top: 1rem;
       font-size: 0.97rem;
     }
-
     footer {
       position: fixed;
       bottom: 1rem;
       left: 0; right: 0;
       text-align: center;
       font-size: 0.78rem;
-      color: rgba(255,255,255,0.45);
+      color: rgba(255,255,255,0.4);
       z-index: 10;
     }
-    footer a { color: rgba(255,240,160,0.65); text-decoration: none; }
+    footer a { color: rgba(255,240,160,0.6); text-decoration: none; }
+    a { color: #ffd700; }
   </style>
 </head>
 <body>
-  <div class="page">
-    <a href="/" class="back">← Back to Qweercoin</a>
 
-    <h1>Start Mining QWR</h1>
-    <p class="subtitle">Earn Qweercoin by helping power the network</p>
-    <div class="beginner-badge">COMPLETE BEGINNER'S GUIDE — NO EXPERIENCE NEEDED</div>
+<!-- Sticky OS picker -->
+<nav class="os-nav">
+  <a href="#mac" class="os-btn" onclick="setActive(this)">🍎 macOS</a>
+  <a href="#windows" class="os-btn" onclick="setActive(this)">🪟 Windows</a>
+  <a href="#linux" class="os-btn" onclick="setActive(this)">🐧 Linux</a>
+</nav>
 
-    <!-- What is mining -->
-    <div class="card intro">
-      <h2>What is mining?</h2>
-      <p>Mining is how new Qweercoins are created. Your computer does a small amount of work to help confirm and record transactions on the network, and in return it earns <strong style="color:#ffd700;">69 QWR</strong> per block it mines.</p>
-      <p>Don't worry — you don't need special equipment. Qweercoin uses a simple proof-of-work system that runs fine on a normal laptop or desktop.</p>
-      <div class="note">
-        <strong>Mining rewards take time to mature.</strong> After you mine a block, you need to wait for 100 more blocks to be mined on top of it before the coins appear in your balance. This is normal and takes a few hours.
-      </div>
+<div class="page">
+  <a href="/" class="back">← Back to Qweercoin</a>
+
+  <h1>Start Mining QWR</h1>
+  <p class="subtitle">Earn Qweercoin by helping power the network — complete beginner's guide</p>
+
+  <!-- Intro -->
+  <div class="card intro">
+    <div class="step-title">What is mining?</div>
+    <p>Mining is how new Qweercoins are created. Your computer does a small amount of work to help confirm and record transactions on the network, and in return it earns <strong style="color:#ffd700;">69 QWR</strong> per block.</p>
+    <p>You don't need special equipment — Qweercoin's mining is lightweight and runs fine on a normal laptop or desktop.</p>
+    <p><strong style="color:#ffd700;">Pick your operating system above</strong> to jump straight to your guide — all the instructions for your system are together in one place.</p>
+    <div class="note">
+      <strong>Rewards mature after 100 blocks.</strong> After you mine a block, you need 100 more blocks mined on top before the coins appear in your balance. This is normal and takes a few hours.
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════ -->
+  <!-- macOS SECTION                         -->
+  <!-- ══════════════════════════════════════ -->
+  <section class="os-section" id="mac">
+    <div class="os-header">
+      <span class="icon">🍎</span>
+      <h2>macOS Guide</h2>
     </div>
 
-    <!-- Step 1: Open Terminal -->
     <div class="card">
-      <h2><span class="num">1</span> Open Terminal</h2>
-      <p>Terminal is a text-based way to talk to your computer. It looks intimidating but you'll only be copying and pasting a few commands — that's it.</p>
-
-      <h3>On macOS (Mac)</h3>
+      <div class="step-title"><span class="num">1</span> Open Terminal</div>
       <ol>
-        <li>Press <code class="inline">⌘ Command</code> + <code class="inline">Space</code> on your keyboard to open Spotlight Search</li>
-        <li>Type <strong>Terminal</strong></li>
-        <li>Press <code class="inline">Enter</code></li>
+        <li>Press <code class="inline">⌘ Command</code> + <code class="inline">Space</code> to open Spotlight Search</li>
+        <li>Type <strong>Terminal</strong> and press <code class="inline">Enter</code></li>
       </ol>
-      <p>A dark window will open with a blinking cursor. That's Terminal — you're ready.</p>
-
+      <p>A dark window with a blinking cursor appears — that's Terminal. You're ready.</p>
       <div class="terminal-demo">
-        <div class="terminal-bar">
-          <span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span>
-          <span class="title-text">Terminal — zsh</span>
-        </div>
-        <div class="terminal-body">
-          <span class="prompt">yourname@Mac ~ %</span> <span style="opacity:0.5">▌</span>
-        </div>
+        <div class="terminal-bar"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span><span class="ttitle">Terminal — zsh</span></div>
+        <div class="terminal-body"><span class="prompt">yourname@Mac ~ %</span> <span style="opacity:0.4">▌</span></div>
       </div>
-
-      <h3>On Windows</h3>
-      <ol>
-        <li>Press <code class="inline">Windows key</code> + <code class="inline">R</code></li>
-        <li>Type <strong>cmd</strong> and press <code class="inline">Enter</code></li>
-      </ol>
-
-      <h3>On Linux</h3>
-      <p>Press <code class="inline">Ctrl</code> + <code class="inline">Alt</code> + <code class="inline">T</code>, or search for "Terminal" in your applications menu.</p>
-
-      <div class="note">
-        <strong>Tip:</strong> To paste into Terminal on Mac, use <code class="inline">⌘ Command</code> + <code class="inline">V</code>. On Windows, right-click inside the window.
-      </div>
+      <div class="note"><strong>Pasting:</strong> use <code class="inline">⌘ Command + V</code> to paste into Terminal.</div>
     </div>
 
-    <!-- Step 2: Download -->
     <div class="card">
-      <h2><span class="num">2</span> Download Qweercoin</h2>
-      <p>Go to the releases page and download the file for your operating system:</p>
-      <a href="https://github.com/sacredsynergy/Qweercoin/releases" class="btn">Download Qweercoin</a>
-
-      <h3>macOS — install from the download</h3>
-      <p>Once downloaded, open Terminal and paste these commands one at a time. After each one, press <code class="inline">Enter</code>.</p>
-
-      <p><span class="copy-hint">↓ COPY AND PASTE THIS — then press Enter</span></p>
+      <div class="step-title"><span class="num">2</span> Download &amp; Install</div>
+      <p>Download the macOS version from the releases page:</p>
+      <a href="https://github.com/sacredsynergy/Qweercoin/releases" class="dl-btn">Download for macOS</a>
+      <p>Then paste these commands into Terminal one at a time, pressing Enter after each:</p>
+      <span class="copy-hint">↓ PASTE — then press Enter</span>
       <pre>cd ~/Downloads</pre>
-      <p><span class="copy-hint">↓ COPY AND PASTE THIS — then press Enter</span></p>
+      <span class="copy-hint">↓ PASTE — then press Enter</span>
       <pre>tar xzf qweercoin-v0.1.0-macos-arm64.tar.gz</pre>
-      <p><span class="copy-hint">↓ COPY AND PASTE THIS — then press Enter (you may be asked for your Mac password)</span></p>
+      <span class="copy-hint">↓ PASTE — then press Enter (your Mac will ask for your password)</span>
       <pre>sudo cp qwr-v0.1.0-macos/qweercoind qwr-v0.1.0-macos/qweercoin-cli /usr/local/bin/</pre>
-
-      <div class="note">
-        When you run the <code class="inline">sudo</code> command, your Mac will ask for your login password. Type it (the cursor won't move — that's normal) and press Enter.
-      </div>
-
-      <p>Check that the installation worked:</p>
+      <div class="note">When the <code class="inline">sudo</code> command runs, type your Mac login password and press Enter. Nothing will appear as you type — this is normal.</div>
+      <p>Check the install worked:</p>
       <pre>qweercoind --version</pre>
-
-      <div class="success">
-        If you see something like <strong>Qweercoin Core v0.1.0</strong> printed — great, it worked!
-      </div>
+      <div class="success">If you see <strong>Qweercoin Core v0.1.0</strong> — installation is complete!</div>
     </div>
 
-    <!-- Step 3: Start the Node -->
     <div class="card">
-      <h2><span class="num">3</span> Start Qweercoin</h2>
-      <p>This command starts the Qweercoin software in the background:</p>
+      <div class="step-title"><span class="num">3</span> Start Qweercoin</div>
+      <p>This starts the Qweercoin software in the background:</p>
+      <span class="copy-hint">↓ PASTE — press Enter</span>
       <pre>qweercoind -daemon</pre>
       <p>You should see: <code class="inline">Qweercoin Core starting</code></p>
-      <p>Now wait about 30 seconds, then check it's running properly:</p>
+      <p>Wait 30 seconds, then check it's running:</p>
       <pre>qweercoin-cli getblockchaininfo</pre>
-      <p>You'll see a bunch of information printed. The important part is <code class="inline">"blocks"</code> — that tells you how many blocks are on the chain.</p>
-
-      <div class="terminal-demo">
-        <div class="terminal-bar">
-          <span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span>
-          <span class="title-text">Terminal</span>
-        </div>
-        <div class="terminal-body">
-          <span class="prompt">%</span> qweercoin-cli getblockchaininfo<br>
-          <span class="output">{</span><br>
-          <span class="output">&nbsp;&nbsp;"chain": "main",</span><br>
-          <span class="output">&nbsp;&nbsp;"blocks": 247,</span><br>
-          <span class="output">&nbsp;&nbsp;"headers": 247,</span><br>
-          <span class="output">&nbsp;&nbsp;...</span><br>
-          <span class="output">}</span>
-        </div>
-      </div>
-
-      <div class="warning">
-        If you get an error like <strong>"Could not connect to server"</strong>, the node is still starting up. Wait another 30 seconds and try again.
-      </div>
+      <div class="warning">If you get <strong>"Could not connect to server"</strong>, the node is still starting up. Wait 30 more seconds and try again.</div>
     </div>
 
-    <!-- Step 4: Create Wallet -->
     <div class="card">
-      <h2><span class="num">4</span> Create Your Wallet</h2>
-      <p>Before you can receive mining rewards, you need a wallet. Think of it like a bank account. Run this command to create one:</p>
+      <div class="step-title"><span class="num">4</span> Create Your Wallet</div>
+      <p>Before you can receive mining rewards, you need a wallet:</p>
+      <span class="copy-hint">↓ PASTE — press Enter</span>
       <pre>qweercoin-cli createwallet "main"</pre>
-      <p>You should see <code class="inline">"name": "main"</code> — your wallet has been created.</p>
-
-      <h3>Get your receiving address</h3>
-      <p>This generates an address where your mining rewards will be sent:</p>
+      <p>Now get an address where your rewards will be sent:</p>
+      <span class="copy-hint">↓ PASTE — press Enter</span>
       <pre>qweercoin-cli getnewaddress</pre>
-      <p>You'll see something like:</p>
       <div class="terminal-demo">
-        <div class="terminal-bar">
-          <span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span>
-          <span class="title-text">Terminal</span>
-        </div>
+        <div class="terminal-bar"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span><span class="ttitle">Terminal</span></div>
         <div class="terminal-body">
           <span class="prompt">%</span> qweercoin-cli getnewaddress<br>
           <span class="output">qwr1qd8ufzdsrs7lkzt3llq3gj74fksmj228q28fg3g</span>
         </div>
       </div>
-      <p><strong style="color:#ffd700;">Copy that address</strong> — you'll need it in the next step. It will start with <code class="inline">qwr1</code>.</p>
+      <p><strong style="color:#ffd700;">Copy that address</strong> — it starts with <code class="inline">qwr1</code>. You'll need it in the next step.</p>
     </div>
 
-    <!-- Step 5: Mine -->
     <div class="card">
-      <h2><span class="num">5</span> Start Mining!</h2>
-      <p>Replace <code class="inline">YOUR_ADDRESS_HERE</code> with the address you copied in step 4, then run:</p>
-
-      <p><span class="copy-hint">↓ REPLACE YOUR_ADDRESS_HERE BEFORE RUNNING THIS</span></p>
-      <pre>qweercoin-cli generatetoaddress 1 YOUR_ADDRESS_HERE</pre>
-
-      <p>That mines one block. To mine continuously and keep going automatically, paste this whole script into Terminal and press Enter:</p>
-
-      <p><span class="copy-hint">↓ REPLACE YOUR_ADDRESS_HERE — then copy the whole thing and paste into Terminal</span></p>
+      <div class="step-title"><span class="num">5</span> Start Mining!</div>
+      <p>Replace <code class="inline">YOUR_ADDRESS_HERE</code> with the address you just copied, then paste this entire block into Terminal:</p>
+      <span class="copy-hint">↓ REPLACE YOUR_ADDRESS_HERE — then paste the whole block and press Enter</span>
       <pre>ADDR="YOUR_ADDRESS_HERE"
 while true; do
-  BLOCKS=$(qweercoin-cli getblockchaininfo | python3 -c "import sys,json; d=json.load(sys.stdin); print(d['blocks'])")
-  echo "Mining... current block: $BLOCKS"
+  BLOCKS=$(qweercoin-cli getblockchaininfo | python3 -c "import sys,json; print(json.load(sys.stdin)['blocks'])")
+  echo "Mining... block: $BLOCKS"
   qweercoin-cli generatetoaddress 1 "$ADDR" > /dev/null
 done</pre>
-
-      <p>You'll see it printing <code class="inline">Mining... current block: 248</code> over and over as it works. Leave this running in the background.</p>
-
-      <div class="note">
-        <strong>To stop mining:</strong> click inside the Terminal window and press <code class="inline">Control</code> + <code class="inline">C</code>.
-      </div>
+      <p>You'll see <code class="inline">Mining... block: 248</code> repeating. Leave this running.</p>
+      <div class="note"><strong>To stop mining:</strong> click inside the Terminal window and press <code class="inline">Control + C</code>.</div>
     </div>
 
-    <!-- Step 6: Check balance -->
     <div class="card">
-      <h2><span class="num">6</span> Check Your Balance</h2>
-      <p>Open a <strong>new Terminal window</strong> (File → New Window, or <code class="inline">⌘ T</code> for a new tab) and run:</p>
+      <div class="step-title"><span class="num">6</span> Check Your Balance</div>
+      <p>Open a new Terminal tab (<code class="inline">⌘ Command + T</code>) and run:</p>
       <pre>qweercoin-cli getbalance</pre>
-      <p>You'll see <code class="inline">0.00000000</code> at first — this is normal! Your rewards won't appear until 100 more blocks have been mined after yours.</p>
-      <p>Once enough blocks have passed, you'll see your earnings:</p>
+      <p>It shows <code class="inline">0.00000000</code> at first — normal! Rewards appear after 100 more blocks are mined on top of yours.</p>
+      <div class="success">Each block earns <strong>69 QWR</strong>. Keep mining and your balance will grow!</div>
+    </div>
+
+    <div class="card">
+      <div class="step-title"><span class="num">7</span> Auto-start at Login</div>
+      <p>Make Qweercoin start automatically whenever your Mac turns on. First, find your username:</p>
+      <pre>whoami</pre>
+      <p>Then paste the block below into Terminal, replacing <code class="inline">YOUR_USERNAME</code> with the result:</p>
+      <span class="copy-hint">↓ REPLACE YOUR_USERNAME — then paste the whole block</span>
+      <pre>cat > ~/Library/LaunchAgents/org.qweercoin.node.plist &lt;&lt;'PLIST'
+&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+  "http://www.apple.com/DTDs/PropertyList-1.0.dtd"&gt;
+&lt;plist version="1.0"&gt;&lt;dict&gt;
+  &lt;key&gt;Label&lt;/key&gt;&lt;string&gt;org.qweercoin.node&lt;/string&gt;
+  &lt;key&gt;ProgramArguments&lt;/key&gt;&lt;array&gt;
+    &lt;string&gt;/usr/local/bin/qweercoind&lt;/string&gt;
+  &lt;/array&gt;
+  &lt;key&gt;RunAtLoad&lt;/key&gt;&lt;true/&gt;
+  &lt;key&gt;KeepAlive&lt;/key&gt;&lt;true/&gt;
+  &lt;key&gt;StandardOutPath&lt;/key&gt;
+  &lt;string&gt;/Users/YOUR_USERNAME/Library/Logs/qweercoin.log&lt;/string&gt;
+  &lt;key&gt;StandardErrorPath&lt;/key&gt;
+  &lt;string&gt;/Users/YOUR_USERNAME/Library/Logs/qweercoin.log&lt;/string&gt;
+&lt;/dict&gt;&lt;/plist&gt;
+PLIST
+launchctl load ~/Library/LaunchAgents/org.qweercoin.node.plist</pre>
+      <div class="success">Qweercoin will now start automatically every time you log into your Mac.</div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════ -->
+  <!-- WINDOWS SECTION                       -->
+  <!-- ══════════════════════════════════════ -->
+  <section class="os-section" id="windows">
+    <div class="os-header">
+      <span class="icon">🪟</span>
+      <h2>Windows Guide</h2>
+    </div>
+
+    <div class="card">
+      <div class="step-title"><span class="num">1</span> Open PowerShell</div>
+      <ol>
+        <li>Click the <strong>Start menu</strong> and search for <strong>PowerShell</strong></li>
+        <li>Right-click <strong>Windows PowerShell</strong> and choose <strong>Run as Administrator</strong></li>
+        <li>Click Yes if a security prompt appears</li>
+      </ol>
       <div class="terminal-demo">
-        <div class="terminal-bar">
-          <span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span>
-          <span class="title-text">Terminal</span>
-        </div>
+        <div class="terminal-bar"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span><span class="ttitle">Windows PowerShell</span></div>
+        <div class="terminal-body">PS C:\Windows\system32&gt; <span style="opacity:0.4">▌</span></div>
+      </div>
+      <div class="note"><strong>Pasting into PowerShell:</strong> right-click inside the window to paste.</div>
+    </div>
+
+    <div class="card">
+      <div class="step-title"><span class="num">2</span> Download &amp; Install</div>
+      <p>Download the Windows version from the releases page:</p>
+      <a href="https://github.com/sacredsynergy/Qweercoin/releases" class="dl-btn">Download for Windows</a>
+      <ol>
+        <li>Right-click the downloaded <code class="inline">.zip</code> file and choose <strong>Extract All</strong></li>
+        <li>When asked where to extract, type <code class="inline">C:\Qweercoin</code> and click Extract</li>
+      </ol>
+      <p>Now add Qweercoin to your PATH so you can run it from anywhere. Paste this into PowerShell:</p>
+      <span class="copy-hint">↓ PASTE INTO POWERSHELL — press Enter</span>
+      <pre>[Environment]::SetEnvironmentVariable("Path", $env:Path + ";C:\Qweercoin", "Machine")</pre>
+      <p>Close PowerShell and open it again (as Administrator). Then check the install worked:</p>
+      <pre>qweercoind --version</pre>
+      <div class="success">If you see <strong>Qweercoin Core v0.1.0</strong> — installation is complete!</div>
+    </div>
+
+    <div class="card">
+      <div class="step-title"><span class="num">3</span> Start Qweercoin</div>
+      <p>Start the Qweercoin software in a hidden background window:</p>
+      <span class="copy-hint">↓ PASTE INTO POWERSHELL — press Enter</span>
+      <pre>Start-Process qweercoind.exe -WindowStyle Hidden</pre>
+      <p>Wait 30 seconds, then check it's running:</p>
+      <pre>qweercoin-cli getblockchaininfo</pre>
+      <div class="warning">If you get <strong>"Could not connect to server"</strong>, wait 30 more seconds and try again.</div>
+    </div>
+
+    <div class="card">
+      <div class="step-title"><span class="num">4</span> Create Your Wallet</div>
+      <p>Create a wallet to receive your mining rewards:</p>
+      <span class="copy-hint">↓ PASTE — press Enter</span>
+      <pre>qweercoin-cli createwallet "main"</pre>
+      <p>Now get an address where your rewards will be sent:</p>
+      <span class="copy-hint">↓ PASTE — press Enter</span>
+      <pre>qweercoin-cli getnewaddress</pre>
+      <div class="terminal-demo">
+        <div class="terminal-bar"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span><span class="ttitle">PowerShell</span></div>
         <div class="terminal-body">
-          <span class="prompt">%</span> qweercoin-cli getbalance<br>
-          <span class="output">138.00000000</span>
+          PS&gt; qweercoin-cli getnewaddress<br>
+          <span class="output">qwr1qd8ufzdsrs7lkzt3llq3gj74fksmj228q28fg3g</span>
         </div>
       </div>
-      <div class="success">
-        Each block earns you <strong>69 QWR</strong>. The longer you mine, the more you earn!
-      </div>
+      <p><strong style="color:#ffd700;">Copy that address</strong> — it starts with <code class="inline">qwr1</code>. You'll need it next.</p>
     </div>
 
-    <!-- Auto-start -->
     <div class="card">
-      <h2><span class="num">7</span> Keep Mining Automatically (Mac)</h2>
-      <p>Don't want to restart mining every time you reboot? These commands set up Qweercoin to start automatically when your Mac turns on.</p>
-
-      <p>First, set up the auto-start file (replace <code class="inline">YOUR_USERNAME</code> with your Mac's username — you can find it by typing <code class="inline">whoami</code> in Terminal):</p>
-
-      <pre>launchctl load ~/Library/LaunchAgents/org.qweercoin.node.plist</pre>
-
-      <div class="note">
-        <strong>What's my username?</strong> Type <code class="inline">whoami</code> in Terminal and press Enter — it'll print your username.
-      </div>
+      <div class="step-title"><span class="num">5</span> Start Mining!</div>
+      <p>Replace <code class="inline">YOUR_ADDRESS_HERE</code> with the address you copied, then paste the whole block into PowerShell:</p>
+      <span class="copy-hint">↓ REPLACE YOUR_ADDRESS_HERE — then paste the whole block</span>
+      <pre>$ADDR = "YOUR_ADDRESS_HERE"
+while ($true) {
+  $blocks = (qweercoin-cli getblockchaininfo | ConvertFrom-Json).blocks
+  Write-Host "Mining... block: $blocks"
+  qweercoin-cli generatetoaddress 1 $ADDR | Out-Null
+}</pre>
+      <p>You'll see <code class="inline">Mining... block: 248</code> repeating. Leave this window open.</p>
+      <div class="note"><strong>To stop mining:</strong> press <code class="inline">Control + C</code> inside the PowerShell window.</div>
     </div>
 
-    <!-- FAQ -->
     <div class="card">
-      <h2>Common Questions</h2>
-
-      <p class="faq-q">My balance is still 0 — is something wrong?</p>
-      <p>No — mining rewards mature after 100 blocks are mined on top of yours. If you've mined fewer than 100 blocks total, your balance will show 0. Keep going!</p>
-
-      <p class="faq-q">The mining script stopped running. What do I do?</p>
-      <p>Just paste the script again and run it. If the node stopped, run <code class="inline">qweercoind -daemon</code> first to restart it, then run the mining script.</p>
-
-      <p class="faq-q">Terminal says "command not found"</p>
-      <p>The installation in Step 2 may not have completed. Try running it again, paying attention to the <code class="inline">sudo cp</code> command and entering your password when asked.</p>
-
-      <p class="faq-q">Can I close Terminal while mining?</p>
-      <p>If you're running the continuous mining loop, closing Terminal will stop it. You can use the auto-start setup in Step 7 so the node runs in the background automatically.</p>
-
-      <p class="faq-q">Will this damage my computer?</p>
-      <p>No. Qweercoin mining is lightweight and won't harm your computer. If your fan gets loud, you can stop mining with <code class="inline">Control + C</code> whenever you like.</p>
+      <div class="step-title"><span class="num">6</span> Check Your Balance</div>
+      <p>Open a <strong>new PowerShell window</strong> and run:</p>
+      <pre>qweercoin-cli getbalance</pre>
+      <p>It shows <code class="inline">0.00000000</code> at first — normal! Rewards appear after 100 more blocks are mined on top of yours.</p>
+      <div class="success">Each block earns <strong>69 QWR</strong>. Keep mining and your balance will grow!</div>
     </div>
 
+    <div class="card">
+      <div class="step-title"><span class="num">7</span> Auto-start at Login</div>
+      <p>Make Qweercoin start automatically when you log into Windows:</p>
+      <ol>
+        <li>Press <code class="inline">Windows key + R</code>, type <code class="inline">shell:startup</code>, and press Enter — a folder opens</li>
+        <li>Right-click inside that folder → <strong>New → Shortcut</strong></li>
+        <li>For the location, type: <code class="inline">C:\Qweercoin\qweercoind.exe</code></li>
+        <li>Click Next, name it <strong>Qweercoin</strong>, click Finish</li>
+      </ol>
+      <div class="success">Qweercoin will now start silently in the background every time you log into Windows.</div>
+    </div>
+  </section>
+
+  <!-- ══════════════════════════════════════ -->
+  <!-- LINUX SECTION                         -->
+  <!-- ══════════════════════════════════════ -->
+  <section class="os-section" id="linux">
+    <div class="os-header">
+      <span class="icon">🐧</span>
+      <h2>Linux Guide</h2>
+    </div>
+
+    <div class="card">
+      <div class="step-title"><span class="num">1</span> Open Terminal</div>
+      <p>Press <code class="inline">Ctrl</code> + <code class="inline">Alt</code> + <code class="inline">T</code>, or search for <strong>Terminal</strong> in your applications menu.</p>
+      <div class="terminal-demo">
+        <div class="terminal-bar"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span><span class="ttitle">Terminal</span></div>
+        <div class="terminal-body">user@linux:~$ <span style="opacity:0.4">▌</span></div>
+      </div>
+      <div class="note"><strong>Pasting:</strong> use <code class="inline">Ctrl + Shift + V</code> to paste into most Linux terminals.</div>
+    </div>
+
+    <div class="card">
+      <div class="step-title"><span class="num">2</span> Download &amp; Install</div>
+      <p>Download the Linux version from the releases page:</p>
+      <a href="https://github.com/sacredsynergy/Qweercoin/releases" class="dl-btn">Download for Linux</a>
+      <p>Then paste these commands into Terminal one at a time:</p>
+      <span class="copy-hint">↓ PASTE — press Enter after each line</span>
+      <pre>cd ~/Downloads
+tar xzf qweercoin-v0.1.0-linux-x64.tar.gz
+sudo cp qwr-v0.1.0-linux/qweercoind qwr-v0.1.0-linux/qweercoin-cli /usr/local/bin/</pre>
+      <div class="note">The <code class="inline">sudo</code> command will ask for your password. Type it and press Enter.</div>
+      <p>Check the install worked:</p>
+      <pre>qweercoind --version</pre>
+      <div class="success">If you see <strong>Qweercoin Core v0.1.0</strong> — installation is complete!</div>
+    </div>
+
+    <div class="card">
+      <div class="step-title"><span class="num">3</span> Start Qweercoin</div>
+      <span class="copy-hint">↓ PASTE — press Enter</span>
+      <pre>qweercoind -daemon</pre>
+      <p>You should see: <code class="inline">Qweercoin Core starting</code></p>
+      <p>Wait 30 seconds, then check it's running:</p>
+      <pre>qweercoin-cli getblockchaininfo</pre>
+      <div class="warning">If you get <strong>"Could not connect to server"</strong>, wait 30 more seconds and try again.</div>
+    </div>
+
+    <div class="card">
+      <div class="step-title"><span class="num">4</span> Create Your Wallet</div>
+      <span class="copy-hint">↓ PASTE — press Enter</span>
+      <pre>qweercoin-cli createwallet "main"</pre>
+      <p>Now get an address where your rewards will be sent:</p>
+      <span class="copy-hint">↓ PASTE — press Enter</span>
+      <pre>qweercoin-cli getnewaddress</pre>
+      <div class="terminal-demo">
+        <div class="terminal-bar"><span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span><span class="ttitle">Terminal</span></div>
+        <div class="terminal-body">
+          $ qweercoin-cli getnewaddress<br>
+          <span class="output">qwr1qd8ufzdsrs7lkzt3llq3gj74fksmj228q28fg3g</span>
+        </div>
+      </div>
+      <p><strong style="color:#ffd700;">Copy that address</strong> — it starts with <code class="inline">qwr1</code>. You'll need it next.</p>
+    </div>
+
+    <div class="card">
+      <div class="step-title"><span class="num">5</span> Start Mining!</div>
+      <p>Replace <code class="inline">YOUR_ADDRESS_HERE</code> with the address you copied, then paste the whole block into Terminal:</p>
+      <span class="copy-hint">↓ REPLACE YOUR_ADDRESS_HERE — then paste the whole block</span>
+      <pre>ADDR="YOUR_ADDRESS_HERE"
+while true; do
+  BLOCKS=$(qweercoin-cli getblockchaininfo | python3 -c "import sys,json; print(json.load(sys.stdin)['blocks'])")
+  echo "Mining... block: $BLOCKS"
+  qweercoin-cli generatetoaddress 1 "$ADDR" > /dev/null
+done</pre>
+      <p>You'll see <code class="inline">Mining... block: 248</code> repeating. Leave this running.</p>
+      <div class="note"><strong>To stop mining:</strong> press <code class="inline">Control + C</code>.</div>
+    </div>
+
+    <div class="card">
+      <div class="step-title"><span class="num">6</span> Check Your Balance</div>
+      <p>Open a new terminal tab or window and run:</p>
+      <pre>qweercoin-cli getbalance</pre>
+      <p>It shows <code class="inline">0.00000000</code> at first — normal! Rewards appear after 100 more blocks are mined on top of yours.</p>
+      <div class="success">Each block earns <strong>69 QWR</strong>. Keep mining and your balance will grow!</div>
+    </div>
+
+    <div class="card">
+      <div class="step-title"><span class="num">7</span> Auto-start at Login</div>
+      <p>Create a systemd service so Qweercoin starts automatically with your Linux session:</p>
+      <span class="copy-hint">↓ PASTE THE WHOLE BLOCK INTO TERMINAL</span>
+      <pre>mkdir -p ~/.config/systemd/user
+cat > ~/.config/systemd/user/qweercoin.service &lt;&lt;'SERVICE'
+[Unit]
+Description=Qweercoin Node
+After=network.target
+
+[Service]
+ExecStart=/usr/local/bin/qweercoind
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=default.target
+SERVICE
+systemctl --user enable qweercoin
+systemctl --user start qweercoin</pre>
+      <div class="success">Your node will now start automatically with your Linux session.</div>
+      <p>Check it: <code class="inline">systemctl --user status qweercoin</code></p>
+      <p>View logs: <code class="inline">journalctl --user -u qweercoin -f</code></p>
+    </div>
+  </section>
+
+  <!-- FAQ (shared) -->
+  <div class="card" style="margin-top:2rem;">
+    <div class="step-title">Common Questions</div>
+
+    <p class="faq-q">My balance is still 0 — is something wrong?</p>
+    <p>No — rewards mature after 100 blocks are mined on top of yours. If the network is small this can take a few hours. Keep mining!</p>
+
+    <p class="faq-q">Terminal says "command not found"</p>
+    <p>Go back to Step 2 and re-run the install. On Mac/Linux make sure the <code class="inline">sudo cp</code> step completed. On Windows, make sure you added Qweercoin to PATH and reopened PowerShell.</p>
+
+    <p class="faq-q">The mining script stopped. What do I do?</p>
+    <p>If the node stopped, restart it first (Step 3), then paste the mining script again (Step 5).</p>
+
+    <p class="faq-q">Will this damage my computer?</p>
+    <p>No. Qweercoin mining is lightweight. If your fan gets loud, stop any time with <code class="inline">Control + C</code>.</p>
+
+    <p class="faq-q">Can I mine while doing other things?</p>
+    <p>Yes — just minimise the terminal window. Mining runs quietly in the background.</p>
   </div>
 
-  <footer>
-    &copy; 2026 Qweercoin &mdash;
-    <a href="https://github.com/sacredsynergy/Qweercoin" target="_blank">GitHub</a>
-  </footer>
+</div>
+
+<footer>
+  &copy; 2026 Qweercoin &mdash;
+  <a href="https://github.com/sacredsynergy/Qweercoin" target="_blank">GitHub</a>
+</footer>
+
+<script>
+  function setActive(el) {
+    document.querySelectorAll('.os-btn').forEach(b => b.classList.remove('active'));
+    el.classList.add('active');
+  }
+  // Highlight button based on which section is in view
+  const sections = ['mac','windows','linux'];
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        const id = e.target.id;
+        document.querySelectorAll('.os-btn').forEach(b => {
+          b.classList.toggle('active', b.getAttribute('href') === '#' + id);
+        });
+      }
+    });
+  }, { threshold: 0.2 });
+  sections.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) observer.observe(el);
+  });
+</script>
 </body>
 </html>
