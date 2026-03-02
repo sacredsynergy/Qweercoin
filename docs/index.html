@@ -10,9 +10,9 @@
 
     body {
       min-height: 100vh;
-      background: #fff2f6;
+      background: #5599cc url('bg.jpg') center center / cover no-repeat fixed;
       font-family: 'Nunito', sans-serif;
-      color: #2a0a1a;
+      color: #0a1a2a;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -25,7 +25,7 @@
       content: '';
       position: fixed;
       inset: 0;
-      background: radial-gradient(ellipse at 50% 40%, #ffe8f0 0%, #fff2f6 70%);
+      background: rgba(100,160,220,0.08);
       z-index: 0;
     }
 
@@ -39,16 +39,6 @@
       pointer-events: none;
     }
 
-    /* ── Full bow rainbow ── */
-    .rainbow-bg {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      height: auto;
-      z-index: 3;
-      pointer-events: none;
-    }
 
     .container {
       position: relative;
@@ -57,12 +47,12 @@
       flex-direction: column;
       align-items: center;
       text-align: center;
-      padding: 2rem;
+      padding: 1rem 2rem 4rem;
     }
 
     /* ── Coin ── */
     .coin-wrap {
-      margin-bottom: 1.6rem;
+      margin-bottom: -2rem;
       animation: float 4s ease-in-out infinite;
       filter: drop-shadow(0 18px 40px rgba(0,0,0,0.25))
               drop-shadow(0 0 40px rgba(255,200,50,0.35));
@@ -83,39 +73,41 @@
       background: linear-gradient(
         to bottom,
         #ffffff  0%,
-        #fff8b0 12%,
-        #ffd700 38%,
-        #f0a500 62%,
-        #c07800 82%,
-        #8a5000 100%
+        #fff5c0 10%,
+        #ffd700 30%,
+        #d4920a 58%,
+        #a06200 78%,
+        #7a4800 100%
       );
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
-      filter: drop-shadow(0 3px 8px rgba(160,90,0,0.4));
+      filter: drop-shadow(0 4px 10px rgba(120,70,0,0.5));
       margin-bottom: 0.5rem;
     }
 
     .tagline {
       font-size: clamp(1rem, 2.5vw, 1.3rem);
-      color: #9333ea;
+      color: #fff8d0;
       letter-spacing: 0.05em;
       margin-bottom: 0.35rem;
       font-weight: 700;
+      text-shadow: 0 1px 4px rgba(120,70,0,0.4);
     }
 
     .ticker {
       font-size: 0.9rem;
-      color: #b8860b;
+      color: #fff8d0;
       letter-spacing: 0.2em;
-      margin-bottom: 1.4rem;
+      margin-bottom: 0.8rem;
       font-weight: 800;
+      text-shadow: 0 1px 4px rgba(120,70,0,0.4);
     }
 
     /* ── Rotating sentences ── */
     .rotating-text {
       height: 2.4rem;
-      margin-bottom: 2rem;
+      margin-bottom: 1.2rem;
       position: relative;
       display: flex;
       align-items: center;
@@ -143,41 +135,56 @@
     }
 
     .btn {
-      padding: 1rem 2.4rem;
+      padding: 0.85rem 2.2rem;
       border-radius: 50px;
       font-family: 'Nunito', sans-serif;
-      font-size: 1rem;
+      font-size: 1.05rem;
       font-weight: 900;
-      letter-spacing: 0.04em;
+      letter-spacing: 0.03em;
       cursor: pointer;
       text-decoration: none;
-      color: #3a1800;
       display: inline-block;
-      background: radial-gradient(
-        ellipse 90% 55% at 50% 18%,
-        #ffffff   0%,
-        #fff5a0  18%,
-        #ffd700  42%,
-        #e09000  68%,
-        #9a6000 100%
+      position: relative;
+
+      /* Balloon gold text */
+      color: #fff5a0;
+      text-shadow:
+        0 1px 3px rgba(180,100,0,0.6),
+        0 -1px 0 rgba(120,60,0,0.3);
+
+      /* Outer gold frame — thick, grooved look */
+      background: linear-gradient(
+        to bottom,
+        #fff5a0  0%,
+        #ffd700  8%,
+        #e8a800 20%,
+        #c88000 35%,
+        #e8a800 50%,
+        #ffd700 65%,
+        #c88000 80%,
+        #a06000 100%
       );
+      border: 2px solid #8b5e00;
+
+      /* Inner recessed panel + outer glow */
       box-shadow:
-        0 0 0 1.5px rgba(180,120,0,0.5),
-        0 6px 22px rgba(255,190,0,0.3),
-        0 2px 8px  rgba(0,0,0,0.2);
-      transition: transform 0.12s, box-shadow 0.12s, filter 0.12s;
+        inset  0  3px  2px rgba(255,255,180,0.7),  /* top inner shine */
+        inset  0 -3px  2px rgba(100, 55,  0, 0.5), /* bottom inner shadow */
+        inset  0  0    0 5px rgba(180,110,  0, 0.4),/* inner border ring */
+        inset  0  0    0 7px rgba(255,220, 80, 0.25),/* second inner ring */
+        0 4px 18px rgba(200,140,  0, 0.5),          /* outer glow */
+        0 2px  8px rgba(  0,  0,  0, 0.3);          /* drop shadow */
+
+      transition: transform 0.12s, filter 0.12s;
     }
 
     .btn:hover {
       transform: translateY(-3px) scale(1.03);
-      filter: brightness(1.08);
-      box-shadow:
-        0 0 0 1.5px rgba(180,120,0,0.5),
-        0 10px 30px rgba(255,190,0,0.4),
-        0 4px 12px  rgba(0,0,0,0.2);
+      filter: brightness(1.1);
     }
 
-    .btn:active { transform: scale(0.97); filter: brightness(0.95); }
+    .btn:active { transform: scale(0.97); filter: brightness(0.92); }
+
 
     footer {
       position: fixed;
@@ -185,13 +192,13 @@
       left: 0; right: 0;
       text-align: center;
       font-size: 0.78rem;
-      color: rgba(100,50,80,0.45);
+      color: rgba(255,255,255,0.6);
       z-index: 10;
       letter-spacing: 0.05em;
     }
 
-    footer a { color: rgba(160,100,0,0.6); text-decoration: none; }
-    footer a:hover { color: rgba(160,100,0,1); }
+    footer a { color: rgba(255,240,160,0.75); text-decoration: none; }
+    footer a:hover { color: rgba(255,240,160,1); }
   </style>
 </head>
 <body>
@@ -199,22 +206,16 @@
   <!-- Glitter canvas -->
   <canvas id="glitter"></canvas>
 
-  <!-- Real rainbow bow — ROYGBIV, muted like a sky rainbow -->
-  <svg class="rainbow-bg" viewBox="0 0 1800 900" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMax meet">
-    <path d="M 33,900  A 867,867 0 0,1 1767,900" fill="none" stroke="rgba(210,  0,  0,0.45)" stroke-width="66"/>
-    <path d="M 98,900  A 802,802 0 0,1 1702,900" fill="none" stroke="rgba(240,120,  0,0.42)" stroke-width="66"/>
-    <path d="M 163,900 A 737,737 0 0,1 1637,900" fill="none" stroke="rgba(230,220,  0,0.40)" stroke-width="66"/>
-    <path d="M 228,900 A 672,672 0 0,1 1572,900" fill="none" stroke="rgba(  0,160, 30,0.40)" stroke-width="66"/>
-    <path d="M 293,900 A 607,607 0 0,1 1507,900" fill="none" stroke="rgba( 20, 60,220,0.38)" stroke-width="66"/>
-    <path d="M 358,900 A 542,542 0 0,1 1442,900" fill="none" stroke="rgba( 60,  0,150,0.36)" stroke-width="66"/>
-    <path d="M 423,900 A 477,477 0 0,1 1377,900" fill="none" stroke="rgba(140,  0,200,0.33)" stroke-width="66"/>
-  </svg>
 
   <div class="container">
 
-    <!-- Minted gold coin -->
+    <!-- Gold coin image -->
     <div class="coin-wrap">
-      <svg viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">
+      <img src="coin.png" alt="Qweercoin gold coin" style="width:220px;height:220px;object-fit:contain;" />
+    </div>
+
+    <!-- hidden svg kept for defs only -->
+    <div style="display:none"><svg viewBox="0 0 300 300" xmlns="http://www.w3.org/2000/svg">
         <defs>
           <radialGradient id="field" cx="33%" cy="28%" r="75%">
             <stop offset="0%"   stop-color="#fffef5"/>
@@ -299,22 +300,20 @@
               font-family="Nunito, sans-serif" font-size="68" font-weight="900"
               fill="#fffef0" filter="url(#frost)" opacity="0.95">QWR</text>
 
-        <!-- Specular highlight -->
         <ellipse cx="112" cy="105" rx="30" ry="20" fill="url(#specular)" transform="rotate(-30 112 105)"/>
-      </svg>
-    </div>
+      </svg></div>
 
-    <h1>Qweercoin</h1>
+    <img src="title.png" alt="Qweercoin" style="width: min(700px, 90vw); max-height: 220px; object-fit: contain; margin-bottom: 0.4rem; filter: drop-shadow(0 4px 12px rgba(140,80,0,0.35));" />
     <p class="tagline">The Official Crypto of the Qweer Community</p>
     <p class="ticker">QWR &bull; Decentralized &bull; Community Owned</p>
 
     <div class="rotating-text" id="rotator">
-      <span style="color:#e91e8c;">Daddies pay in Qweercoin</span>
-      <span style="color:#0097c4;">Twinks love to spend Twinks</span>
-      <span style="color:#c8930a;">Rainbows are the new currency</span>
-      <span style="color:#e65c00;">Transactions supported by the trans-community</span>
-      <span style="color:#7c3aed;">Together we rise</span>
-      <span style="color:#00875a;">Join the Qweer evolution</span>
+      <span style="color:#ffc8e8;">Daddies pay in Qweercoin</span>
+      <span style="color:#b8eeff;">Twinks love to spend Twinks</span>
+      <span style="color:#fff5a0;">Rainbows are the new currency</span>
+      <span style="color:#ffd0a0;">Transactions supported by the trans-community</span>
+      <span style="color:#e8d0ff;">Together we rise</span>
+      <span style="color:#b8ffdc;">Join the Qweer evolution</span>
     </div>
 
     <div class="buttons">
@@ -352,56 +351,73 @@
     resize();
     window.addEventListener('resize', resize);
 
-    // Glitter colour palette — gold, pink, white, lavender
+    // All-gold glitter palette
     const palette = [
-      'rgba(255,215,0,',    // gold
-      'rgba(255,182,193,',  // pink
-      'rgba(255,255,255,',  // white
-      'rgba(200,160,255,',  // lavender
-      'rgba(255,240,100,',  // pale gold
-      'rgba(255,150,200,',  // hot pink
+      'rgba(255,215,0,',    // classic gold
+      'rgba(255,200,50,',   // bright gold
+      'rgba(255,235,120,',  // pale gold
+      'rgba(230,170,0,',    // deep gold
+      'rgba(255,245,180,',  // cream gold
+      'rgba(210,150,0,',    // amber gold
     ];
 
     const COUNT = 90;
-    const stars = Array.from({ length: COUNT }, () => makestar());
+    const now = () => performance.now();
+    const stars = Array.from({ length: COUNT }, (_, i) => makestar(false, i));
 
-    function makestar(fromTop = false) {
+    function makestar(fromTop = false, index = 0) {
+      const sparkles = (index % 16 === 0); // exactly 1 in 16 sparkles
       return {
         x:      Math.random() * window.innerWidth,
         y:      fromTop ? -10 : Math.random() * window.innerHeight,
-        size:   Math.random() * 6 + 2,       // 2–8 px arm length
-        speed:  Math.random() * 0.6 + 0.15,  // slow, snowflake-like
+        size:   Math.random() * 6 + 2,
+        speed:  Math.random() * 2.5 + 1.0,
         drift:  (Math.random() - 0.5) * 0.35,
-        phase:  Math.random() * Math.PI * 2, // for side-sway
+        phase:  Math.random() * Math.PI * 2,
         color:  palette[Math.floor(Math.random() * palette.length)],
         alpha:  Math.random(),
         alphaDir: Math.random() > 0.5 ? 1 : -1,
         alphaSpd: Math.random() * 0.012 + 0.004,
         rotation: Math.random() * Math.PI,
         rotSpd: (Math.random() - 0.5) * 0.02,
+        sparkles,
+        // When to next trigger a sparkle flash (ms)
+        nextSparkle: sparkles ? now() + Math.random() * 4000 + 1000 : Infinity,
+        sparkleEnd:  0,
       };
     }
 
-    // Draw a 4-pointed sparkle ✦
+    // Draw a simple gold dot
     function drawSparkle(x, y, size, rotation, color, alpha) {
+      ctx.save();
+      ctx.globalAlpha = Math.min(0.95, Math.max(0.5, alpha));
+      ctx.fillStyle = color + '1)';
+      ctx.beginPath();
+      ctx.arc(x, y, size * 0.55, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+
+    // Draw a bright full sparkle burst (for the 1-in-16 flash)
+    function drawBurst(x, y, size, rotation) {
       ctx.save();
       ctx.translate(x, y);
       ctx.rotate(rotation);
-      ctx.globalAlpha = Math.max(0, Math.min(1, alpha));
-      ctx.strokeStyle = color + alpha + ')';
+      ctx.globalAlpha = 1.0;
+      ctx.strokeStyle = 'rgba(255,255,220,1)';
       ctx.lineCap = 'round';
-
-      // Long cross
-      ctx.lineWidth = Math.max(0.8, size * 0.18);
-      ctx.beginPath(); ctx.moveTo(-size, 0); ctx.lineTo(size, 0); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(0, -size); ctx.lineTo(0, size); ctx.stroke();
-
-      // Short diagonals
-      const d = size * 0.45;
+      ctx.lineWidth = Math.max(1, size * 0.2);
+      ctx.beginPath(); ctx.moveTo(-size*2.2, 0); ctx.lineTo(size*2.2, 0); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(0, -size*2.2); ctx.lineTo(0, size*2.2); ctx.stroke();
+      ctx.strokeStyle = 'rgba(255,230,100,0.8)';
       ctx.lineWidth = Math.max(0.5, size * 0.1);
-      ctx.beginPath(); ctx.moveTo(-d, -d); ctx.lineTo(d, d); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(d, -d);  ctx.lineTo(-d, d); ctx.stroke();
-
+      const d = size * 1.1;
+      ctx.beginPath(); ctx.moveTo(-d,-d); ctx.lineTo(d,d); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(d,-d);  ctx.lineTo(-d,d); ctx.stroke();
+      // Bright centre dot
+      ctx.globalAlpha = 1.0;
+      ctx.fillStyle = 'rgba(255,255,255,0.95)';
+      ctx.beginPath(); ctx.arc(0, 0, size * 0.4, 0, Math.PI*2); ctx.fill();
       ctx.restore();
     }
 
@@ -409,9 +425,9 @@
     function animate() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       t += 0.016;
+      const ms = now();
 
       stars.forEach(s => {
-        // Gentle side sway like a snowflake
         s.x += s.drift + Math.sin(t * 0.5 + s.phase) * 0.25;
         s.y += s.speed;
         s.rotation += s.rotSpd;
@@ -421,7 +437,17 @@
         if (s.alpha >= 0.95) { s.alpha = 0.95; s.alphaDir = -1; }
         if (s.alpha <= 0.08) { s.alpha = 0.08; s.alphaDir =  1; }
 
-        drawSparkle(s.x, s.y, s.size, s.rotation, s.color, s.alpha);
+        // Sparkle burst for 1-in-16 stars
+        if (s.sparkles && ms >= s.nextSparkle) {
+          s.sparkleEnd   = ms + 75;   // flash lasts 75ms
+          s.nextSparkle  = ms + Math.random() * 5000 + 2000; // next flash in 2-7s
+        }
+
+        if (s.sparkles && ms < s.sparkleEnd) {
+          drawBurst(s.x, s.y, s.size, s.rotation);
+        } else {
+          drawSparkle(s.x, s.y, s.size, s.rotation, s.color, s.alpha);
+        }
 
         // Respawn at top when off-screen
         if (s.y > canvas.height + 20) {
