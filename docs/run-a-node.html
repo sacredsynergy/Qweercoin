@@ -19,16 +19,16 @@
       content: '';
       position: fixed;
       inset: 0;
-      background: rgba(10,20,40,0.45);
+      background: rgba(10,20,40,0.52);
       z-index: 0;
     }
 
     .page {
       position: relative;
       z-index: 1;
-      max-width: 780px;
+      max-width: 820px;
       margin: 0 auto;
-      padding: 3rem 1.5rem 5rem;
+      padding: 3rem 1.5rem 6rem;
     }
 
     .back {
@@ -55,69 +55,114 @@
     .subtitle {
       color: rgba(255,240,160,0.8);
       font-size: 1.05rem;
-      margin-bottom: 2.5rem;
+      margin-bottom: 0.6rem;
       font-weight: 600;
+    }
+
+    .beginner-badge {
+      display: inline-block;
+      background: rgba(255,215,0,0.18);
+      border: 1px solid rgba(255,215,0,0.4);
+      border-radius: 20px;
+      padding: 0.3rem 0.9rem;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: #ffd700;
+      letter-spacing: 0.05em;
+      margin-bottom: 2.2rem;
     }
 
     .card {
       background: rgba(255,255,255,0.08);
-      border: 1px solid rgba(255,215,0,0.25);
-      border-radius: 16px;
+      border: 1px solid rgba(255,215,0,0.22);
+      border-radius: 18px;
       padding: 1.8rem 2rem;
-      margin-bottom: 1.5rem;
-      backdrop-filter: blur(8px);
+      margin-bottom: 1.4rem;
+      backdrop-filter: blur(10px);
+    }
+
+    .card.intro {
+      border-color: rgba(255,215,0,0.35);
+      background: rgba(255,215,0,0.06);
     }
 
     h2 {
-      font-size: 1.25rem;
+      font-size: 1.2rem;
       font-weight: 900;
       color: #ffd700;
       margin-bottom: 1rem;
       display: flex;
       align-items: center;
-      gap: 0.5rem;
+      gap: 0.6rem;
     }
 
     h2 .num {
       background: linear-gradient(to bottom, #ffd700, #c88000);
       color: #3a1800;
       border-radius: 50%;
-      width: 1.8rem;
-      height: 1.8rem;
+      width: 2rem;
+      height: 2rem;
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      font-size: 0.9rem;
+      font-size: 0.92rem;
       flex-shrink: 0;
+    }
+
+    h3 {
+      font-size: 1rem;
+      font-weight: 900;
+      color: rgba(255,230,120,0.95);
+      margin: 1.2rem 0 0.5rem;
     }
 
     p {
       color: rgba(255,255,255,0.88);
-      line-height: 1.7;
-      margin-bottom: 0.8rem;
+      line-height: 1.75;
+      margin-bottom: 0.75rem;
       font-size: 0.97rem;
     }
 
-    code, pre {
-      font-family: 'Courier New', monospace;
+    p:last-child { margin-bottom: 0; }
+
+    ul, ol {
+      color: rgba(255,255,255,0.88);
+      line-height: 1.75;
+      font-size: 0.97rem;
+      padding-left: 1.4rem;
+      margin-bottom: 0.75rem;
     }
 
+    li { margin-bottom: 0.35rem; }
+
+    code { font-family: 'Courier New', monospace; }
+
     pre {
-      background: rgba(0,0,0,0.45);
+      background: rgba(0,0,0,0.5);
       border: 1px solid rgba(255,215,0,0.2);
       border-radius: 10px;
       padding: 1rem 1.2rem;
       margin: 0.8rem 0;
       overflow-x: auto;
-      font-size: 0.88rem;
+      font-size: 0.87rem;
       color: #ffe878;
-      line-height: 1.6;
+      line-height: 1.65;
     }
 
-    code {
+    .copy-hint {
+      font-size: 0.75rem;
+      color: rgba(255,215,0,0.5);
+      font-family: 'Nunito', sans-serif;
+      display: block;
+      margin-bottom: 0.3rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+
+    code.inline {
       background: rgba(255,215,0,0.15);
       border-radius: 4px;
-      padding: 0.1em 0.35em;
+      padding: 0.1em 0.38em;
       font-size: 0.9em;
       color: #ffd700;
     }
@@ -126,11 +171,79 @@
       background: rgba(255,215,0,0.08);
       border-left: 3px solid #ffd700;
       border-radius: 0 8px 8px 0;
-      padding: 0.8rem 1rem;
-      margin-top: 0.8rem;
-      color: rgba(255,240,180,0.9);
+      padding: 0.85rem 1.1rem;
+      margin-top: 0.9rem;
+      color: rgba(255,240,180,0.92);
       font-size: 0.93rem;
+      line-height: 1.65;
     }
+
+    .warning {
+      background: rgba(255,140,0,0.1);
+      border-left: 3px solid #ff9500;
+      border-radius: 0 8px 8px 0;
+      padding: 0.85rem 1.1rem;
+      margin-top: 0.9rem;
+      color: rgba(255,220,160,0.92);
+      font-size: 0.93rem;
+      line-height: 1.65;
+    }
+
+    .success {
+      background: rgba(100,255,150,0.07);
+      border-left: 3px solid #4cff80;
+      border-radius: 0 8px 8px 0;
+      padding: 0.85rem 1.1rem;
+      margin-top: 0.9rem;
+      color: rgba(200,255,220,0.92);
+      font-size: 0.93rem;
+      line-height: 1.65;
+    }
+
+    .terminal-demo {
+      background: #1a1a1a;
+      border: 1px solid #444;
+      border-radius: 10px;
+      overflow: hidden;
+      margin: 0.9rem 0;
+      font-size: 0.87rem;
+    }
+
+    .terminal-bar {
+      background: #333;
+      padding: 0.45rem 0.8rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .terminal-bar span {
+      width: 10px; height: 10px; border-radius: 50%;
+      display: inline-block;
+    }
+
+    .dot-r { background: #ff5f57; }
+    .dot-y { background: #febc2e; }
+    .dot-g { background: #28c840; }
+
+    .terminal-bar .title-text {
+      width: auto; height: auto; border-radius: 0;
+      color: rgba(255,255,255,0.5);
+      font-family: 'Nunito', sans-serif;
+      font-size: 0.78rem;
+      margin-left: auto; margin-right: auto;
+      background: none;
+    }
+
+    .terminal-body {
+      padding: 0.9rem 1.1rem;
+      color: #ffe878;
+      font-family: 'Courier New', monospace;
+      line-height: 1.7;
+    }
+
+    .terminal-body .prompt { color: #4cff80; }
+    .terminal-body .output { color: rgba(255,255,255,0.75); }
 
     .spec-grid {
       display: grid;
@@ -147,7 +260,12 @@
       color: rgba(255,255,255,0.85);
     }
 
-    .spec strong { color: #ffd700; display: block; font-size: 0.78rem; letter-spacing: 0.05em; }
+    .spec strong {
+      color: #ffd700;
+      display: block;
+      font-size: 0.78rem;
+      letter-spacing: 0.05em;
+    }
 
     .btn {
       display: inline-block;
@@ -172,16 +290,24 @@
     }
     .btn:hover { transform: translateY(-2px); filter: brightness(1.1); }
 
+    .faq-q {
+      font-weight: 900;
+      color: #ffd700;
+      margin-bottom: 0.3rem;
+      margin-top: 1.1rem;
+      font-size: 0.97rem;
+    }
+
     footer {
       position: fixed;
       bottom: 1rem;
       left: 0; right: 0;
       text-align: center;
       font-size: 0.78rem;
-      color: rgba(255,255,255,0.5);
+      color: rgba(255,255,255,0.45);
       z-index: 10;
     }
-    footer a { color: rgba(255,240,160,0.7); text-decoration: none; }
+    footer a { color: rgba(255,240,160,0.65); text-decoration: none; }
   </style>
 </head>
 <body>
@@ -189,54 +315,167 @@
     <a href="/" class="back">← Back to Qweercoin</a>
 
     <h1>Run a Node</h1>
-    <p class="subtitle">Help keep the Qweercoin network strong and decentralised</p>
+    <p class="subtitle">Help keep Qweercoin decentralised and strong</p>
+    <div class="beginner-badge">COMPLETE BEGINNER'S GUIDE — NO EXPERIENCE NEEDED</div>
 
-    <div class="card">
-      <h2>Why run a node?</h2>
-      <p>Every full node independently verifies every transaction on the network. The more nodes, the more resilient and decentralised Qweercoin becomes. Running a node is one of the most powerful ways to support the Qweer community's financial sovereignty.</p>
-    </div>
+    <!-- What is a node -->
+    <div class="card intro">
+      <h2>What is a node?</h2>
+      <p>A node is a copy of the Qweercoin software running on your computer. It connects to other nodes around the world and together they form the Qweercoin network.</p>
+      <p>Every node independently checks that every transaction on the network is valid. The more nodes there are, the harder it is for anyone to cheat or take control of the network. <strong style="color:#ffd700;">Running a node is a direct act of community power.</strong></p>
+      <p>You don't need to be technical. You don't need special hardware. If you have a reasonably modern computer and an internet connection, you can run a node.</p>
 
-    <div class="card">
-      <h2><span class="num">1</span> System Requirements</h2>
-      <div class="spec-grid">
-        <div class="spec"><strong>OS</strong>macOS, Linux, or Windows</div>
-        <div class="spec"><strong>RAM</strong>512 MB minimum</div>
-        <div class="spec"><strong>Storage</strong>~1 GB (growing over time)</div>
-        <div class="spec"><strong>Port</strong>9444 open (TCP)</div>
-      </div>
-    </div>
-
-    <div class="card">
-      <h2><span class="num">2</span> Install</h2>
-      <p>Download and install the Qweercoin daemon:</p>
-      <pre>curl -LO https://github.com/sacredsynergy/Qweercoin/releases/latest/download/qweercoin-v0.1.0-macos-arm64.tar.gz
-tar xzf qweercoin-v0.1.0-macos-arm64.tar.gz
-sudo cp qwr-v0.1.0-macos/qweercoind qwr-v0.1.0-macos/qweercoin-cli /usr/local/bin/</pre>
-      <a href="https://github.com/sacredsynergy/Qweercoin/releases" class="btn">Download Binaries</a>
-    </div>
-
-    <div class="card">
-      <h2><span class="num">3</span> Start the Node</h2>
-      <p>Launch the daemon:</p>
-      <pre>qweercoind -daemon</pre>
-      <p>Verify it's running and connecting to peers:</p>
-      <pre>qweercoin-cli getblockchaininfo
-qweercoin-cli getpeerinfo</pre>
       <div class="note">
-        The node will automatically find peers and begin downloading the blockchain. This may take a few minutes on a fresh install.
+        <strong>Node vs Mining:</strong> Running a node keeps the network healthy. Mining earns you QWR. You can do both at the same time — or just one. Running a node alone is completely free and uses very little power.
       </div>
     </div>
 
+    <!-- Requirements -->
     <div class="card">
-      <h2><span class="num">4</span> Auto-Start on macOS</h2>
-      <p>To have your node start automatically at login, create a Launch Agent:</p>
-      <pre>cat &gt; ~/Library/LaunchAgents/org.qweercoin.node.plist &lt;&lt;'EOF'
+      <h2>What you'll need</h2>
+      <div class="spec-grid">
+        <div class="spec"><strong>COMPUTER</strong>Any Mac, Windows PC, or Linux machine</div>
+        <div class="spec"><strong>RAM</strong>512 MB free (most computers have 8+ GB)</div>
+        <div class="spec"><strong>STORAGE</strong>~1 GB to start (grows slowly over time)</div>
+        <div class="spec"><strong>INTERNET</strong>Any broadband connection</div>
+      </div>
+      <div class="note" style="margin-top:1rem;">
+        Optionally: open <strong>port 9444</strong> on your router to accept inbound connections. This makes you a more helpful peer but it's not required to get started.
+      </div>
+    </div>
+
+    <!-- Step 1: Open Terminal -->
+    <div class="card">
+      <h2><span class="num">1</span> Open Terminal</h2>
+      <p>Terminal lets you type commands directly to your computer. You'll only need to paste a few lines — that's it.</p>
+
+      <h3>On macOS (Mac)</h3>
+      <ol>
+        <li>Press <code class="inline">⌘ Command</code> + <code class="inline">Space</code> to open Spotlight Search</li>
+        <li>Type <strong>Terminal</strong></li>
+        <li>Press <code class="inline">Enter</code></li>
+      </ol>
+
+      <div class="terminal-demo">
+        <div class="terminal-bar">
+          <span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span>
+          <span class="title-text">Terminal — zsh</span>
+        </div>
+        <div class="terminal-body">
+          <span class="prompt">yourname@Mac ~ %</span> <span style="opacity:0.5">▌</span>
+        </div>
+      </div>
+
+      <h3>On Windows</h3>
+      <ol>
+        <li>Press <code class="inline">Windows key</code> + <code class="inline">R</code></li>
+        <li>Type <strong>cmd</strong> and press <code class="inline">Enter</code></li>
+      </ol>
+
+      <h3>On Linux</h3>
+      <p>Press <code class="inline">Ctrl</code> + <code class="inline">Alt</code> + <code class="inline">T</code>, or find "Terminal" in your app launcher.</p>
+
+      <div class="note">
+        <strong>Tip:</strong> To paste into Terminal on Mac, use <code class="inline">⌘ Command</code> + <code class="inline">V</code>. On Windows, right-click inside the window.
+      </div>
+    </div>
+
+    <!-- Step 2: Download -->
+    <div class="card">
+      <h2><span class="num">2</span> Download &amp; Install</h2>
+      <p>Click the button below to go to the downloads page, then download the file for your system:</p>
+      <a href="https://github.com/sacredsynergy/Qweercoin/releases" class="btn">Download Qweercoin</a>
+
+      <h3>macOS install</h3>
+      <p>After downloading, open Terminal and run these commands one at a time — copy, paste, and press Enter for each:</p>
+
+      <p><span class="copy-hint">↓ COPY AND PASTE — press Enter</span></p>
+      <pre>cd ~/Downloads</pre>
+
+      <p><span class="copy-hint">↓ COPY AND PASTE — press Enter</span></p>
+      <pre>tar xzf qweercoin-v0.1.0-macos-arm64.tar.gz</pre>
+
+      <p><span class="copy-hint">↓ COPY AND PASTE — press Enter (you'll be asked for your Mac password)</span></p>
+      <pre>sudo cp qwr-v0.1.0-macos/qweercoind qwr-v0.1.0-macos/qweercoin-cli /usr/local/bin/</pre>
+
+      <div class="note">
+        When you run the <code class="inline">sudo</code> command, your Mac will ask for your login password. Type it and press Enter. Nothing will appear as you type — this is normal.
+      </div>
+
+      <p>Verify the install worked:</p>
+      <pre>qweercoind --version</pre>
+
+      <div class="success">
+        If you see <strong>Qweercoin Core v0.1.0</strong> — perfect, installation is complete!
+      </div>
+    </div>
+
+    <!-- Step 3: Start Node -->
+    <div class="card">
+      <h2><span class="num">3</span> Start Your Node</h2>
+      <p>Run this single command to start Qweercoin in the background:</p>
+      <pre>qweercoind -daemon</pre>
+
+      <p>You'll see: <code class="inline">Qweercoin Core starting</code></p>
+
+      <p>After 20–30 seconds, check that it's running and connecting to the network:</p>
+      <pre>qweercoin-cli getblockchaininfo</pre>
+
+      <p>This will print a bunch of information. Look for <code class="inline">"blocks"</code> — this tells you how many blocks your node has downloaded.</p>
+
+      <div class="terminal-demo">
+        <div class="terminal-bar">
+          <span class="dot-r"></span><span class="dot-y"></span><span class="dot-g"></span>
+          <span class="title-text">Terminal</span>
+        </div>
+        <div class="terminal-body">
+          <span class="prompt">%</span> qweercoin-cli getblockchaininfo<br>
+          <span class="output">{</span><br>
+          <span class="output">&nbsp;&nbsp;"chain": "main",</span><br>
+          <span class="output">&nbsp;&nbsp;"blocks": 514,</span><br>
+          <span class="output">&nbsp;&nbsp;"headers": 514,</span><br>
+          <span class="output">&nbsp;&nbsp;"bestblockhash": "0000ab12...",</span><br>
+          <span class="output">&nbsp;&nbsp;...</span><br>
+          <span class="output">}</span>
+        </div>
+      </div>
+
+      <p>Check how many other nodes you're connected to:</p>
+      <pre>qweercoin-cli getnetworkinfo | python3 -c "import sys,json; d=json.load(sys.stdin); print('Connected peers:', d['connections'])"</pre>
+
+      <div class="success">
+        Seeing any number of connections means your node is live and participating in the Qweercoin network. Welcome aboard!
+      </div>
+
+      <div class="warning">
+        <strong>Getting "Could not connect to server"?</strong> The node is still starting up. Wait 30 more seconds and try again.
+      </div>
+    </div>
+
+    <!-- Step 4: Auto-start -->
+    <div class="card">
+      <h2><span class="num">4</span> Auto-Start When Your Mac Turns On</h2>
+      <p>This optional step makes Qweercoin start automatically whenever you log in to your Mac — so you don't have to remember to run it manually.</p>
+
+      <h3>Find your username</h3>
+      <p>First, find out what your Mac username is by running:</p>
+      <pre>whoami</pre>
+      <p>It will print something like <code class="inline">sarah</code> or <code class="inline">devah</code>. Remember this — you'll use it in the next command.</p>
+
+      <h3>Create the auto-start file</h3>
+      <p>Paste this whole block into Terminal, replacing <code class="inline">YOUR_USERNAME</code> with the result from <code class="inline">whoami</code>:</p>
+
+      <p><span class="copy-hint">↓ REPLACE YOUR_USERNAME — then copy the whole block and paste into Terminal</span></p>
+      <pre>cat &gt; ~/Library/LaunchAgents/org.qweercoin.node.plist &lt;&lt;'PLIST'
 &lt;?xml version="1.0" encoding="UTF-8"?&gt;
 &lt;!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
   "http://www.apple.com/DTDs/PropertyList-1.0.dtd"&gt;
-&lt;plist version="1.0"&gt;&lt;dict&gt;
-  &lt;key&gt;Label&lt;/key&gt;&lt;string&gt;org.qweercoin.node&lt;/string&gt;
-  &lt;key&gt;ProgramArguments&lt;/key&gt;&lt;array&gt;
+&lt;plist version="1.0"&gt;
+&lt;dict&gt;
+  &lt;key&gt;Label&lt;/key&gt;
+  &lt;string&gt;org.qweercoin.node&lt;/string&gt;
+  &lt;key&gt;ProgramArguments&lt;/key&gt;
+  &lt;array&gt;
     &lt;string&gt;/usr/local/bin/qweercoind&lt;/string&gt;
   &lt;/array&gt;
   &lt;key&gt;RunAtLoad&lt;/key&gt;&lt;true/&gt;
@@ -245,27 +484,81 @@ qweercoin-cli getpeerinfo</pre>
   &lt;string&gt;/Users/YOUR_USERNAME/Library/Logs/qweercoin.log&lt;/string&gt;
   &lt;key&gt;StandardErrorPath&lt;/key&gt;
   &lt;string&gt;/Users/YOUR_USERNAME/Library/Logs/qweercoin.log&lt;/string&gt;
-&lt;/dict&gt;&lt;/plist&gt;
-EOF
-launchctl load ~/Library/LaunchAgents/org.qweercoin.node.plist</pre>
-      <p>Replace <code>YOUR_USERNAME</code> with your macOS username.</p>
-    </div>
+&lt;/dict&gt;
+&lt;/plist&gt;
+PLIST</pre>
 
-    <div class="card">
-      <h2><span class="num">5</span> Open Your Firewall</h2>
-      <p>To accept inbound connections and help other nodes sync, allow TCP port <code>9444</code> through your router or firewall. This turns your node into a public peer that others can connect to.</p>
-      <p>Check how many peers you have:</p>
-      <pre>qweercoin-cli getnetworkinfo | grep connections</pre>
-    </div>
+      <p>Then activate it:</p>
+      <pre>launchctl load ~/Library/LaunchAgents/org.qweercoin.node.plist</pre>
 
-    <div class="card">
-      <h2>Network Info</h2>
-      <div class="spec-grid">
-        <div class="spec"><strong>P2P Port</strong>9444</div>
-        <div class="spec"><strong>RPC Port</strong>9443</div>
-        <div class="spec"><strong>Protocol</strong>Litecoin-based</div>
-        <div class="spec"><strong>Address prefix</strong>qwr1…</div>
+      <div class="success">
+        Your node will now start automatically every time you log in. You can check it's running at any time with <code class="inline">qweercoin-cli getblockchaininfo</code>.
       </div>
+    </div>
+
+    <!-- Step 5: Open firewall -->
+    <div class="card">
+      <h2><span class="num">5</span> Help Others Connect to You (Optional)</h2>
+      <p>By default, your node can connect out to the network but other nodes can't connect <em>in</em> to you. Opening port <code class="inline">9444</code> on your router lets others use your node too — making the whole network stronger.</p>
+
+      <h3>How to open the port</h3>
+      <ol>
+        <li>Log in to your router's admin page — usually by going to <code class="inline">192.168.1.1</code> or <code class="inline">192.168.0.1</code> in your browser</li>
+        <li>Find the section called <strong>Port Forwarding</strong> (sometimes under "Advanced" or "NAT")</li>
+        <li>Add a new rule: <strong>TCP, port 9444</strong>, pointing to your computer's local IP address</li>
+        <li>Save and apply</li>
+      </ol>
+
+      <div class="note">
+        <strong>Finding your local IP:</strong> In Terminal, run <code class="inline">ipconfig getifaddr en0</code> (for Wi-Fi) or <code class="inline">ipconfig getifaddr en1</code> (for ethernet). It will be something like <code class="inline">192.168.1.45</code>.
+      </div>
+
+      <p>After opening the port, check how many inbound connections you're getting:</p>
+      <pre>qweercoin-cli getnetworkinfo | python3 -c "import sys,json; d=json.load(sys.stdin); print('In:', d['connections_in'], 'Out:', d['connections_out'])"</pre>
+    </div>
+
+    <!-- Useful commands -->
+    <div class="card">
+      <h2>Useful Commands</h2>
+
+      <h3>Check the blockchain</h3>
+      <pre>qweercoin-cli getblockchaininfo</pre>
+
+      <h3>See how many peers you're connected to</h3>
+      <pre>qweercoin-cli getpeerinfo</pre>
+
+      <h3>Check your node is running</h3>
+      <pre>qweercoin-cli ping</pre>
+
+      <h3>Gracefully stop the node</h3>
+      <pre>qweercoin-cli stop</pre>
+
+      <h3>View the log file (useful for troubleshooting)</h3>
+      <pre>tail -f ~/Library/Application\ Support/Qweercoin/debug.log</pre>
+      <p>Press <code class="inline">Control + C</code> to stop watching the log.</p>
+    </div>
+
+    <!-- FAQ -->
+    <div class="card">
+      <h2>Common Questions</h2>
+
+      <p class="faq-q">Do I earn anything for running a node?</p>
+      <p>Running a node alone doesn't earn QWR — but it supports the network. If you also want to earn coins, check out the <a href="/mining.html" style="color:#ffd700;">Mining guide</a>.</p>
+
+      <p class="faq-q">How much internet will it use?</p>
+      <p>Very little. A Qweercoin node uses a few MB per day when idle. Even with inbound connections open it stays modest — well within typical home broadband limits.</p>
+
+      <p class="faq-q">Terminal says "command not found"</p>
+      <p>Go back to Step 2 and re-run the <code class="inline">sudo cp</code> command. Make sure you press Enter after pasting and type your password when prompted.</p>
+
+      <p class="faq-q">My node had 0 connections for a while</p>
+      <p>This is normal when the network is small and growing. Give it a few minutes. You can also restart the node with <code class="inline">qweercoin-cli stop</code>, wait a few seconds, then run <code class="inline">qweercoind -daemon</code> again.</p>
+
+      <p class="faq-q">How do I know if my node is healthy?</p>
+      <p>Run <code class="inline">qweercoin-cli getblockchaininfo</code> and check that <code class="inline">"blocks"</code> is a positive number and not stuck. If it keeps growing over time, your node is syncing and healthy.</p>
+
+      <p class="faq-q">Can I run a node on a Raspberry Pi or old laptop?</p>
+      <p>Yes! Qweercoin is lightweight enough for low-power devices. A Raspberry Pi 3 or newer works well. Just follow the Linux instructions and make sure the device stays on.</p>
     </div>
 
   </div>
