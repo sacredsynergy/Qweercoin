@@ -1265,6 +1265,7 @@ function truncateAddr(addr) {
 // QR CODE GENERATION
 // ════════════════════════════════════════════════════════════
 function renderQR(text) {
+  if (typeof QRCode === 'undefined') return;
   const canvas = document.getElementById('qr-canvas');
   QRCode.toCanvas(canvas, text, {
     width: 200,
@@ -1432,8 +1433,8 @@ document.getElementById('btn-send').addEventListener('click', () => {
 document.getElementById('btn-receive').addEventListener('click', () => {
   const addr = LS.address || '';
   document.getElementById('receive-addr').textContent = addr;
-  renderQR(addr);
   showScreen('screen-receive');
+  try { renderQR(addr); } catch (_) {}
 });
 
 document.getElementById('btn-history').addEventListener('click', () => {
