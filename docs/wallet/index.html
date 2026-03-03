@@ -1119,33 +1119,17 @@ const LS = {
 // ════════════════════════════════════════════════════════════
 const PBKDF2_ITERS = 200000;
 
+// Pure-JS only — no dependency on crypto.subtle.
+// Works on all iOS versions including Private Browsing mode.
 async function encryptWIF(wif, pin) {
   const salt  = crypto.getRandomValues(new Uint8Array(16));
   const nonce = crypto.getRandomValues(new Uint8Array(12));
-
-  // Try Web Crypto AES-GCM first (faster, standard AES)
-  if (crypto.subtle) {
-    try {
-      const km  = await crypto.subtle.importKey(
-        'raw', new TextEncoder().encode(pin), { name: 'PBKDF2' }, false, ['deriveKey']);
-      const key = await crypto.subtle.deriveKey(
-        { name: 'PBKDF2', salt, iterations: PBKDF2_ITERS, hash: { name: 'SHA-256' } },
-        km, { name: 'AES-GCM', length: 256 }, false, ['encrypt']);
-      const ct  = await crypto.subtle.encrypt(
-        { name: 'AES-GCM', iv: nonce }, key, new TextEncoder().encode(wif));
-      return { v: 1, ct: toHex(new Uint8Array(ct)), salt: toHex(salt), iv: toHex(nonce) };
-    } catch (_) { /* fall through to pure-JS */ }
-  }
-
-  // Pure-JS fallback: PBKDF2-SHA256 key derivation + SHA256-CTR + HMAC-SHA256 auth
-  // Works on iOS Private Browsing and older iOS where crypto.subtle is blocked
   const encKey = pbkdf2Sha256(pin, salt, PBKDF2_ITERS);
   const macKey = sha256(encKey);
   const plain  = new TextEncoder().encode(wif);
   const stream = sha256Ctr(encKey, nonce, plain.length);
   const ct     = plain.map((b, i) => b ^ stream[i]);
-  const macInput = concatBytes(salt, nonce, ct);
-  const mac    = hmacSha256(macKey, macInput);
+  const mac    = hmacSha256(macKey, concatBytes(salt, nonce, ct));
   return { v: 2, ct: toHex(ct), salt: toHex(salt), nonce: toHex(nonce), mac: toHex(mac) };
 }
 
@@ -1154,17 +1138,16 @@ async function decryptWIF(pin) {
   const raw = LS.encKey;
   if (!raw) throw new Error('No wallet found');
   const stored = JSON.parse(raw);
+  const salt   = fromHex(stored.salt);
+  const ct     = fromHex(stored.ct);
 
-  // v:2 — pure-JS path (created on iOS Private Browsing or older iOS)
+  // v:2 — pure-JS (current format)
   if (stored.v === 2) {
-    const salt    = fromHex(stored.salt);
-    const nonce   = fromHex(stored.nonce);
-    const ct      = fromHex(stored.ct);
-    const mac     = fromHex(stored.mac);
-    const encKey  = pbkdf2Sha256(pin, salt, PBKDF2_ITERS);
-    const macKey  = sha256(encKey);
+    const nonce  = fromHex(stored.nonce);
+    const mac    = fromHex(stored.mac);
+    const encKey = pbkdf2Sha256(pin, salt, PBKDF2_ITERS);
+    const macKey = sha256(encKey);
     const expected = hmacSha256(macKey, concatBytes(salt, nonce, ct));
-    // Constant-time MAC comparison
     let diff = 0;
     for (let i = 0; i < 32; i++) diff |= mac[i] ^ expected[i];
     if (diff !== 0) throw new Error('Wrong PIN');
@@ -1172,17 +1155,18 @@ async function decryptWIF(pin) {
     return new TextDecoder().decode(ct.map((b, i) => b ^ stream[i]));
   }
 
-  // v:1 or legacy (no v field) — AES-GCM via Web Crypto
-  if (!crypto.subtle) throw new Error('Switch off Private Browsing to access this wallet, or re-create it.');
-  const { ct, salt, iv } = stored;
+  // v:1 or legacy — AES-GCM (older wallet; requires crypto.subtle)
+  if (!crypto.subtle || typeof crypto.subtle.importKey !== 'function') {
+    throw new Error('Re-create your wallet to upgrade to the new format.');
+  }
+  const iv  = fromHex(stored.iv);
   const km  = await crypto.subtle.importKey(
     'raw', new TextEncoder().encode(pin), { name: 'PBKDF2' }, false, ['deriveKey']);
   const key = await crypto.subtle.deriveKey(
-    { name: 'PBKDF2', salt: fromHex(salt), iterations: PBKDF2_ITERS, hash: { name: 'SHA-256' } },
+    { name: 'PBKDF2', salt, iterations: PBKDF2_ITERS, hash: { name: 'SHA-256' } },
     km, { name: 'AES-GCM', length: 256 }, false, ['decrypt']);
   try {
-    const pt = await crypto.subtle.decrypt(
-      { name: 'AES-GCM', iv: fromHex(iv) }, key, fromHex(ct));
+    const pt = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, ct);
     return new TextDecoder().decode(pt);
   } catch {
     throw new Error('Wrong PIN');

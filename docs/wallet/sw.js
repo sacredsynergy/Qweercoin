@@ -1,4 +1,4 @@
-const CACHE = 'qwr-wallet-v2';
+const CACHE = 'qwr-wallet-v3';
 const SHELL = [
   '/wallet/',
   '/wallet/index.html',
