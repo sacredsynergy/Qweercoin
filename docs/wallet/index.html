@@ -714,6 +714,27 @@
   </div>
   <div class="content" style="gap:1rem">
     <div class="warn-box">⚠️ Only import WIF keys from wallets you control. Your key is stored only on this device.</div>
+
+    <div class="card" style="font-size:0.9rem;line-height:1.7">
+      <div style="font-weight:900;color:var(--gold);margin-bottom:0.6rem">Where do I find my WIF key?</div>
+      <p style="margin:0 0 0.5rem;font-size:0.9rem"><strong>From another QWR phone wallet:</strong></p>
+      <ol style="padding-left:1.2rem;margin:0 0 0.8rem">
+        <li>Open the QWR Wallet on your other phone</li>
+        <li>Tap <strong>Settings</strong> on the home screen</li>
+        <li>Tap <strong>Backup Private Key</strong></li>
+        <li>Enter your PIN when prompted</li>
+        <li>Your WIF key is displayed — tap <strong>Copy WIF Key</strong></li>
+        <li>Paste it in the field below</li>
+      </ol>
+      <p style="margin:0 0 0.5rem;font-size:0.9rem"><strong>From a desktop Qweercoin wallet (command line):</strong></p>
+      <ol style="padding-left:1.2rem;margin:0">
+        <li>Open Terminal (Mac/Linux) or Command Prompt (Windows)</li>
+        <li>Run: <span style="font-family:monospace;font-size:0.82rem;color:var(--gold);background:rgba(255,215,0,0.1);padding:0.1em 0.4em;border-radius:4px">qweercoin-cli dumpprivkey YOUR_ADDRESS</span></li>
+        <li>Replace <strong>YOUR_ADDRESS</strong> with your QWR address starting with Q</li>
+        <li>It will print your WIF key — copy and paste it below</li>
+      </ol>
+    </div>
+
     <div class="input-wrap">
       <div class="input-label">WIF Private Key</div>
       <textarea id="import-wif" rows="3" placeholder="Paste your WIF private key here…"
