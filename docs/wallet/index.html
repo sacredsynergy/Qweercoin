@@ -804,6 +804,57 @@ function sha256d(data) {
   return sha256(sha256(data));
 }
 
+// ════════════════════════════════════════════════════════════
+// PURE-JS CRYPTO  (fallback when crypto.subtle is unavailable)
+// Works on iOS Private Browsing and older iOS versions
+// Uses our self-hosted @noble/hashes sha256
+// ════════════════════════════════════════════════════════════
+function concatBytes(...arrays) {
+  const total = arrays.reduce((n, a) => n + a.length, 0);
+  const out = new Uint8Array(total);
+  let off = 0;
+  for (const a of arrays) { out.set(a, off); off += a.length; }
+  return out;
+}
+
+function hmacSha256(key, data) {
+  const BLOCK = 64;
+  if (!(key instanceof Uint8Array)) key = new TextEncoder().encode(key);
+  if (key.length > BLOCK) key = sha256(key);
+  const k = new Uint8Array(BLOCK);
+  k.set(key);
+  const opad = k.map(b => b ^ 0x5c);
+  const ipad = k.map(b => b ^ 0x36);
+  return sha256(concatBytes(opad, sha256(concatBytes(ipad, data))));
+}
+
+// Single-block PBKDF2-HMAC-SHA256 → 32-byte key
+function pbkdf2Sha256(password, salt, iters) {
+  const pwd = typeof password === 'string' ? new TextEncoder().encode(password) : password;
+  const saltBlock = new Uint8Array(salt.length + 4);
+  saltBlock.set(salt);
+  saltBlock[salt.length + 3] = 1; // block index 1, big-endian
+  let U = hmacSha256(pwd, saltBlock);
+  const T = new Uint8Array(U);
+  for (let i = 1; i < iters; i++) {
+    U = hmacSha256(pwd, U);
+    for (let j = 0; j < 32; j++) T[j] ^= U[j];
+  }
+  return T;
+}
+
+// SHA256 counter-mode stream cipher
+function sha256Ctr(key, nonce, length) {
+  const blocks = Math.ceil(length / 32);
+  const stream = new Uint8Array(blocks * 32);
+  const ctr = new Uint8Array(4);
+  for (let i = 0; i < blocks; i++) {
+    new DataView(ctr.buffer).setUint32(0, i);
+    stream.set(sha256(concatBytes(key, nonce, ctr)), i * 32);
+  }
+  return stream.slice(0, length);
+}
+
 function base58Encode(bytes) {
   let n = 0n;
   for (const b of bytes) n = n * 256n + BigInt(b);
@@ -1069,23 +1120,61 @@ const LS = {
 const PBKDF2_ITERS = 200000;
 
 async function encryptWIF(wif, pin) {
-  const salt = crypto.getRandomValues(new Uint8Array(16));
-  const iv   = crypto.getRandomValues(new Uint8Array(12));
-  const km   = await crypto.subtle.importKey(
-    'raw', new TextEncoder().encode(pin), { name: 'PBKDF2' }, false, ['deriveKey']);
-  const key  = await crypto.subtle.deriveKey(
-    { name: 'PBKDF2', salt, iterations: PBKDF2_ITERS, hash: { name: 'SHA-256' } },
-    km, { name: 'AES-GCM', length: 256 }, false, ['encrypt']);
-  const ct   = await crypto.subtle.encrypt(
-    { name: 'AES-GCM', iv }, key, new TextEncoder().encode(wif));
-  return { ct: toHex(new Uint8Array(ct)), salt: toHex(salt), iv: toHex(iv) };
+  const salt  = crypto.getRandomValues(new Uint8Array(16));
+  const nonce = crypto.getRandomValues(new Uint8Array(12));
+
+  // Try Web Crypto AES-GCM first (faster, standard AES)
+  if (crypto.subtle) {
+    try {
+      const km  = await crypto.subtle.importKey(
+        'raw', new TextEncoder().encode(pin), { name: 'PBKDF2' }, false, ['deriveKey']);
+      const key = await crypto.subtle.deriveKey(
+        { name: 'PBKDF2', salt, iterations: PBKDF2_ITERS, hash: { name: 'SHA-256' } },
+        km, { name: 'AES-GCM', length: 256 }, false, ['encrypt']);
+      const ct  = await crypto.subtle.encrypt(
+        { name: 'AES-GCM', iv: nonce }, key, new TextEncoder().encode(wif));
+      return { v: 1, ct: toHex(new Uint8Array(ct)), salt: toHex(salt), iv: toHex(nonce) };
+    } catch (_) { /* fall through to pure-JS */ }
+  }
+
+  // Pure-JS fallback: PBKDF2-SHA256 key derivation + SHA256-CTR + HMAC-SHA256 auth
+  // Works on iOS Private Browsing and older iOS where crypto.subtle is blocked
+  const encKey = pbkdf2Sha256(pin, salt, PBKDF2_ITERS);
+  const macKey = sha256(encKey);
+  const plain  = new TextEncoder().encode(wif);
+  const stream = sha256Ctr(encKey, nonce, plain.length);
+  const ct     = plain.map((b, i) => b ^ stream[i]);
+  const macInput = concatBytes(salt, nonce, ct);
+  const mac    = hmacSha256(macKey, macInput);
+  return { v: 2, ct: toHex(ct), salt: toHex(salt), nonce: toHex(nonce), mac: toHex(mac) };
 }
 
 // Returns decrypted WIF string, or throws on wrong PIN / tampered data
 async function decryptWIF(pin) {
   const raw = LS.encKey;
   if (!raw) throw new Error('No wallet found');
-  const { ct, salt, iv } = JSON.parse(raw);
+  const stored = JSON.parse(raw);
+
+  // v:2 — pure-JS path (created on iOS Private Browsing or older iOS)
+  if (stored.v === 2) {
+    const salt    = fromHex(stored.salt);
+    const nonce   = fromHex(stored.nonce);
+    const ct      = fromHex(stored.ct);
+    const mac     = fromHex(stored.mac);
+    const encKey  = pbkdf2Sha256(pin, salt, PBKDF2_ITERS);
+    const macKey  = sha256(encKey);
+    const expected = hmacSha256(macKey, concatBytes(salt, nonce, ct));
+    // Constant-time MAC comparison
+    let diff = 0;
+    for (let i = 0; i < 32; i++) diff |= mac[i] ^ expected[i];
+    if (diff !== 0) throw new Error('Wrong PIN');
+    const stream = sha256Ctr(encKey, nonce, ct.length);
+    return new TextDecoder().decode(ct.map((b, i) => b ^ stream[i]));
+  }
+
+  // v:1 or legacy (no v field) — AES-GCM via Web Crypto
+  if (!crypto.subtle) throw new Error('Switch off Private Browsing to access this wallet, or re-create it.');
+  const { ct, salt, iv } = stored;
   const km  = await crypto.subtle.importKey(
     'raw', new TextEncoder().encode(pin), { name: 'PBKDF2' }, false, ['deriveKey']);
   const key = await crypto.subtle.deriveKey(
