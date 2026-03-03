@@ -1,0 +1,17 @@
+[Unit]
+Description=Qweercoin Wallet API
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/opt/qwr-api
+ExecStart=/usr/bin/node /opt/qwr-api/index.js
+Restart=on-failure
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=qwr-api
+
+[Install]
+WantedBy=multi-user.target

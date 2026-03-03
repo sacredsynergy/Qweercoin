@@ -1,0 +1,1582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="QWR Wallet" />
+  <meta name="theme-color" content="#ffd700" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icon-192.png" />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;900&display=swap" rel="stylesheet" />
+  <title>Qweercoin Wallet</title>
+
+  <style>
+    /* ── Reset & base ─────────────────────────────────────── */
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg:       #0a1428;
+      --bg2:      #111d35;
+      --surface:  rgba(255,255,255,0.07);
+      --border:   rgba(255,200,50,0.18);
+      --gold:     #ffd700;
+      --gold2:    #c88000;
+      --gold-dim: rgba(255,215,0,0.55);
+      --text:     #f0e8d0;
+      --text2:    rgba(240,232,208,0.6);
+      --danger:   #ff6666;
+      --success:  #66ffaa;
+      --radius:   16px;
+      --sat-top:  env(safe-area-inset-top, 0px);
+      --sat-bot:  env(safe-area-inset-bottom, 0px);
+    }
+
+    html, body {
+      height: 100%;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Nunito', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+      overflow: hidden;
+    }
+
+    /* ── Screen system ────────────────────────────────────── */
+    .screen {
+      position: fixed;
+      inset: 0;
+      display: none;
+      flex-direction: column;
+      background: var(--bg) url('../bg.jpg') center/cover no-repeat;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      padding-top: var(--sat-top);
+      padding-bottom: calc(var(--sat-bot) + 1rem);
+    }
+
+    .screen::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: rgba(8,16,36,0.82);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .screen.active { display: flex; }
+
+    .screen > * { position: relative; z-index: 1; }
+
+    /* ── Top bar ──────────────────────────────────────────── */
+    .topbar {
+      display: flex;
+      align-items: center;
+      padding: 1rem 1.2rem 0.5rem;
+      gap: 0.8rem;
+    }
+
+    .back-btn {
+      background: none;
+      border: none;
+      color: var(--gold);
+      font-size: 1.5rem;
+      cursor: pointer;
+      padding: 0.2rem 0.5rem;
+      border-radius: 8px;
+      line-height: 1;
+    }
+
+    .topbar-title {
+      font-size: 1.1rem;
+      font-weight: 900;
+      color: var(--gold);
+      letter-spacing: 0.05em;
+    }
+
+    /* ── Content wrapper ──────────────────────────────────── */
+    .content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 1.2rem 1.4rem;
+      gap: 1rem;
+    }
+
+    /* ── Gold coin logo (small) ───────────────────────────── */
+    .logo-sm {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      object-fit: contain;
+      filter: drop-shadow(0 4px 16px rgba(255,200,0,0.5));
+    }
+
+    /* ── Gold card ────────────────────────────────────────── */
+    .card {
+      width: 100%;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.2rem;
+    }
+
+    /* ── Buttons ──────────────────────────────────────────── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+      padding: 0.85rem 1.8rem;
+      border: none;
+      border-radius: 50px;
+      font-family: 'Nunito', sans-serif;
+      font-size: 1rem;
+      font-weight: 900;
+      cursor: pointer;
+      transition: transform 0.12s, filter 0.12s;
+      text-decoration: none;
+    }
+
+    .btn:active { transform: scale(0.96); }
+
+    .btn-gold {
+      background: linear-gradient(to bottom,
+        #fff5a0 0%, #ffd700 10%, #e8a800 25%,
+        #c88000 40%, #e8a800 55%, #ffd700 70%, #c88000 85%, #a06000 100%);
+      color: #3a1800;
+      box-shadow: 0 4px 18px rgba(200,130,0,0.5), 0 2px 8px rgba(0,0,0,0.3),
+                  inset 0 2px 2px rgba(255,255,180,0.6),
+                  inset 0 -2px 2px rgba(100,50,0,0.4);
+    }
+
+    .btn-gold:hover { filter: brightness(1.08); transform: translateY(-2px); }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--gold);
+      border: 1.5px solid var(--gold-dim);
+    }
+
+    .btn-outline:hover { background: rgba(255,215,0,0.08); }
+
+    .btn-danger {
+      background: rgba(255,80,80,0.18);
+      color: var(--danger);
+      border: 1px solid rgba(255,100,100,0.3);
+    }
+
+    .btn-full { width: 100%; }
+
+    /* ── Inputs ───────────────────────────────────────────── */
+    .input-wrap { width: 100%; display: flex; flex-direction: column; gap: 0.35rem; }
+    .input-label { font-size: 0.82rem; color: var(--text2); font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
+
+    input[type="text"], input[type="number"], input[type="tel"], textarea {
+      width: 100%;
+      background: rgba(0,0,0,0.3);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 0.85rem 1rem;
+      font-family: 'Nunito', sans-serif;
+      font-size: 1rem;
+      color: var(--text);
+      outline: none;
+      -webkit-appearance: none;
+    }
+
+    input:focus, textarea:focus {
+      border-color: var(--gold-dim);
+      box-shadow: 0 0 0 2px rgba(255,215,0,0.12);
+    }
+
+    .input-row { display: flex; gap: 0.6rem; align-items: flex-end; }
+    .input-row > .input-wrap { flex: 1; }
+    .input-row > .btn { flex-shrink: 0; padding: 0.85rem 1rem; }
+
+    /* ── Typography ───────────────────────────────────────── */
+    h1 { font-size: 2rem; font-weight: 900; color: var(--gold); }
+    h2 { font-size: 1.4rem; font-weight: 900; color: var(--gold); }
+    p  { color: var(--text2); line-height: 1.6; font-size: 0.95rem; }
+
+    .mono {
+      font-family: 'Courier New', monospace;
+      font-size: 0.78rem;
+      color: var(--text2);
+      word-break: break-all;
+      line-height: 1.6;
+    }
+
+    .amount-display {
+      font-size: 2.4rem;
+      font-weight: 900;
+      color: var(--gold);
+      letter-spacing: -0.02em;
+    }
+
+    .amount-display span { font-size: 1rem; color: var(--text2); margin-left: 0.3rem; }
+
+    /* ── Grid for action buttons ──────────────────────────── */
+    .action-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.8rem;
+      width: 100%;
+    }
+
+    .action-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 1.2rem 0.5rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      cursor: pointer;
+      font-family: 'Nunito', sans-serif;
+      color: var(--text);
+      font-size: 0.9rem;
+      font-weight: 700;
+      transition: background 0.15s, transform 0.12s;
+    }
+
+    .action-btn:active { transform: scale(0.97); background: rgba(255,255,255,0.1); }
+    .action-btn .icon { font-size: 1.6rem; }
+
+    /* ── QR code ──────────────────────────────────────────── */
+    #qr-canvas {
+      border-radius: 12px;
+      border: 3px solid var(--gold-dim);
+      max-width: 200px;
+      background: #fff;
+      padding: 8px;
+    }
+
+    /* ── Toast ────────────────────────────────────────────── */
+    #toast {
+      position: fixed;
+      bottom: calc(var(--sat-bot) + 80px);
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: rgba(20,30,55,0.96);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 0.7rem 1.4rem;
+      border-radius: 50px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      white-space: nowrap;
+      opacity: 0;
+      transition: opacity 0.25s, transform 0.25s;
+      z-index: 9999;
+      pointer-events: none;
+    }
+
+    #toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* ── Loading overlay ──────────────────────────────────── */
+    #loading {
+      position: fixed;
+      inset: 0;
+      background: rgba(8,16,36,0.75);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 8888;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    #loading.show { display: flex; }
+
+    .spinner {
+      width: 44px;
+      height: 44px;
+      border: 4px solid rgba(255,215,0,0.2);
+      border-top-color: var(--gold);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── QR scanner modal ─────────────────────────────────── */
+    #scanner-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(8,16,36,0.96);
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 7777;
+      gap: 1rem;
+      padding: 2rem;
+    }
+
+    #scanner-modal.show { display: flex; }
+    #scanner-container { width: 280px; height: 280px; border-radius: 16px; overflow: hidden; }
+
+    /* ── PIN dots ─────────────────────────────────────────── */
+    .pin-dots {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      margin: 1rem 0;
+    }
+
+    .pin-dot {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      border: 2px solid var(--gold-dim);
+      background: transparent;
+      transition: background 0.15s;
+    }
+
+    .pin-dot.filled { background: var(--gold); border-color: var(--gold); }
+
+    .pin-input-hidden {
+      position: absolute;
+      opacity: 0;
+      width: 1px;
+      height: 1px;
+      pointer-events: none;
+    }
+
+    /* ── Transaction list ─────────────────────────────────── */
+    .tx-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.9rem 1rem;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .tx-item:last-child { border-bottom: none; }
+    .tx-left { display: flex; flex-direction: column; gap: 0.25rem; }
+    .tx-type { font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text2); }
+    .tx-id   { font-size: 0.72rem; color: rgba(240,232,208,0.4); font-family: monospace; }
+    .tx-amount { font-weight: 900; color: var(--success); white-space: nowrap; }
+
+    /* ── Warning box ──────────────────────────────────────── */
+    .warn-box {
+      background: rgba(255,80,80,0.1);
+      border: 1px solid rgba(255,100,100,0.3);
+      border-radius: 12px;
+      padding: 1rem;
+      color: #ffaaaa;
+      font-size: 0.88rem;
+      line-height: 1.6;
+      width: 100%;
+    }
+
+    /* ── Confirm summary rows ─────────────────────────────── */
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.6rem 0;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      font-size: 0.92rem;
+    }
+
+    .summary-row:last-child { border-bottom: none; font-weight: 900; color: var(--gold); }
+    .summary-label { color: var(--text2); }
+
+    /* ── Welcome screen specifics ─────────────────────────── */
+    #screen-welcome .content {
+      justify-content: center;
+      min-height: 100vh;
+      gap: 1.4rem;
+      padding-top: 3rem;
+    }
+
+    .welcome-title {
+      font-size: 2.2rem;
+      font-weight: 900;
+      background: linear-gradient(to bottom, #ffffff 0%, #fff5c0 20%, #ffd700 50%, #c88000 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-align: center;
+    }
+
+    .welcome-sub { color: var(--text2); text-align: center; font-size: 0.95rem; }
+
+    /* ── Settings list ────────────────────────────────────── */
+    .settings-item {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      cursor: pointer;
+      width: 100%;
+      font-family: 'Nunito', sans-serif;
+      color: var(--text);
+      font-size: 1rem;
+      font-weight: 700;
+      text-align: left;
+      transition: background 0.15s;
+    }
+
+    .settings-item:active { background: rgba(255,255,255,0.12); }
+    .settings-item .icon { font-size: 1.4rem; width: 2rem; text-align: center; }
+    .settings-item.danger { color: var(--danger); border-color: rgba(255,100,100,0.25); }
+
+    /* ── Home balance card ────────────────────────────────── */
+    .balance-card {
+      width: 100%;
+      background: linear-gradient(135deg, rgba(255,215,0,0.12) 0%, rgba(200,128,0,0.06) 100%);
+      border: 1px solid rgba(255,200,50,0.3);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .balance-label { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text2); font-weight: 700; }
+    .balance-addr  { font-size: 0.72rem; color: var(--text2); font-family: monospace; cursor: pointer; }
+    .balance-addr:hover { color: var(--gold); }
+
+    /* ── Refresh button (subtle) ──────────────────────────── */
+    .refresh-btn {
+      background: none;
+      border: none;
+      color: var(--text2);
+      cursor: pointer;
+      font-size: 1.1rem;
+      padding: 0.3rem;
+      margin-left: auto;
+      transition: color 0.15s, transform 0.3s;
+    }
+
+    .refresh-btn:hover { color: var(--gold); }
+    .refresh-btn.spinning { animation: spin 0.8s linear infinite; }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════
+     LOADING OVERLAY
+═══════════════════════════════════════════════════════ -->
+<div id="loading">
+  <div class="spinner"></div>
+  <p style="color:var(--text2);font-size:0.9rem" id="loading-msg">Loading…</p>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     TOAST
+═══════════════════════════════════════════════════════ -->
+<div id="toast"></div>
+
+<!-- ═══════════════════════════════════════════════════════
+     QR SCANNER MODAL
+═══════════════════════════════════════════════════════ -->
+<div id="scanner-modal">
+  <p style="color:var(--text2);font-size:0.9rem">Point camera at QR code</p>
+  <div id="scanner-container"></div>
+  <button class="btn btn-outline" id="scanner-cancel-btn">Cancel</button>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     SCREEN: WELCOME
+═══════════════════════════════════════════════════════ -->
+<div id="screen-welcome" class="screen active">
+  <div class="content" style="justify-content:center;min-height:100dvh;gap:1.4rem;padding-top:3rem">
+    <img src="../coin.png" alt="QWR" class="logo-sm" style="width:88px;height:88px" />
+    <div class="welcome-title">QWR Wallet</div>
+    <p class="welcome-sub">Non-custodial Qweercoin wallet.<br/>Your keys. Your coins.</p>
+    <div style="display:flex;flex-direction:column;gap:0.8rem;width:100%;max-width:320px;margin-top:0.5rem">
+      <button class="btn btn-gold btn-full" id="btn-create">✨ Create Wallet</button>
+      <button class="btn btn-outline btn-full" id="btn-go-import">Import Wallet</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     SCREEN: PIN SETUP
+═══════════════════════════════════════════════════════ -->
+<div id="screen-pin-setup" class="screen">
+  <div class="topbar">
+    <div class="topbar-title">Set PIN</div>
+  </div>
+  <div class="content" style="align-items:center;gap:1rem;max-width:380px;margin:0 auto;width:100%">
+    <img src="../coin.png" alt="" class="logo-sm" style="margin-top:1rem" />
+    <h2>Protect Your Wallet</h2>
+    <p style="text-align:center">Set a 6-digit PIN to protect access to your transaction history.</p>
+    <div class="pin-dots" id="setup-dots">
+      <div class="pin-dot" id="sd-0"></div>
+      <div class="pin-dot" id="sd-1"></div>
+      <div class="pin-dot" id="sd-2"></div>
+      <div class="pin-dot" id="sd-3"></div>
+      <div class="pin-dot" id="sd-4"></div>
+      <div class="pin-dot" id="sd-5"></div>
+    </div>
+    <input type="tel" id="pin-setup-input" inputmode="numeric" pattern="[0-9]*"
+           maxlength="6" class="pin-input-hidden" autocomplete="off" />
+    <button class="btn btn-gold btn-full" id="pin-setup-focus-btn"
+            style="max-width:280px">Tap to enter PIN</button>
+    <button class="btn btn-gold btn-full" id="pin-setup-confirm" style="max-width:280px" disabled>
+      Confirm PIN
+    </button>
+    <p id="pin-setup-err" style="color:var(--danger);font-size:0.85rem;min-height:1.2em"></p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     SCREEN: HOME
+═══════════════════════════════════════════════════════ -->
+<div id="screen-home" class="screen">
+  <div class="topbar">
+    <img src="../coin.png" alt="" class="logo-sm" style="width:36px;height:36px" />
+    <span class="topbar-title">QWR Wallet</span>
+    <button class="refresh-btn" id="home-refresh" title="Refresh balance">↻</button>
+  </div>
+  <div class="content" style="gap:1rem">
+    <div class="balance-card">
+      <div class="balance-label">Balance</div>
+      <div class="amount-display" id="home-balance">—<span>QWR</span></div>
+      <div class="balance-addr" id="home-addr" title="Tap to copy">…</div>
+    </div>
+    <div class="action-grid">
+      <button class="action-btn" id="btn-send">
+        <span class="icon">↗</span>Send
+      </button>
+      <button class="action-btn" id="btn-receive">
+        <span class="icon">↙</span>Receive
+      </button>
+      <button class="action-btn" id="btn-history">
+        <span class="icon">📋</span>History
+      </button>
+      <button class="action-btn" id="btn-settings">
+        <span class="icon">⚙️</span>Settings
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     SCREEN: RECEIVE
+═══════════════════════════════════════════════════════ -->
+<div id="screen-receive" class="screen">
+  <div class="topbar">
+    <button class="back-btn" id="receive-back">‹</button>
+    <span class="topbar-title">Receive QWR</span>
+  </div>
+  <div class="content" style="align-items:center;gap:1.2rem">
+    <p style="text-align:center">Share your address to receive QWR</p>
+    <canvas id="qr-canvas"></canvas>
+    <div class="card" style="text-align:center">
+      <div class="mono" id="receive-addr">…</div>
+    </div>
+    <button class="btn btn-gold" id="btn-copy-addr">📋 Copy Address</button>
+    <p style="font-size:0.8rem;text-align:center">QR code updates automatically when address changes.</p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     SCREEN: SEND
+═══════════════════════════════════════════════════════ -->
+<div id="screen-send" class="screen">
+  <div class="topbar">
+    <button class="back-btn" id="send-back">‹</button>
+    <span class="topbar-title">Send QWR</span>
+  </div>
+  <div class="content" style="gap:1rem">
+    <div class="input-wrap">
+      <div class="input-label">Recipient Address</div>
+      <div class="input-row">
+        <div class="input-wrap">
+          <input type="text" id="send-to" placeholder="Q…" autocomplete="off" autocorrect="off" spellcheck="false" />
+        </div>
+        <button class="btn btn-outline" id="btn-scan" title="Scan QR">📷</button>
+      </div>
+    </div>
+    <div class="input-wrap">
+      <div class="input-label">Amount (QWR)</div>
+      <input type="number" id="send-amount" placeholder="0.0000" step="0.0001" min="0" />
+    </div>
+    <div class="card" style="display:flex;justify-content:space-between;align-items:center;padding:0.8rem 1rem">
+      <span style="color:var(--text2);font-size:0.88rem">Network fee</span>
+      <span style="font-weight:700;font-size:0.88rem">0.0001 QWR</span>
+    </div>
+    <div class="card" style="display:flex;justify-content:space-between;align-items:center;padding:0.8rem 1rem">
+      <span style="color:var(--text2);font-size:0.88rem">Available</span>
+      <span style="font-weight:700;font-size:0.88rem" id="send-available">—</span>
+    </div>
+    <p id="send-err" style="color:var(--danger);font-size:0.85rem;min-height:1.2em"></p>
+    <button class="btn btn-gold btn-full" id="btn-preview">Preview Transaction →</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     SCREEN: CONFIRM SEND
+═══════════════════════════════════════════════════════ -->
+<div id="screen-confirm" class="screen">
+  <div class="topbar">
+    <button class="back-btn" id="confirm-back">‹</button>
+    <span class="topbar-title">Confirm Send</span>
+  </div>
+  <div class="content" style="gap:1rem">
+    <div class="card">
+      <div class="summary-row">
+        <span class="summary-label">To</span>
+        <span class="mono" id="confirm-to" style="max-width:180px;text-align:right"></span>
+      </div>
+      <div class="summary-row">
+        <span class="summary-label">Amount</span>
+        <span id="confirm-amount" style="font-weight:700"></span>
+      </div>
+      <div class="summary-row">
+        <span class="summary-label">Fee</span>
+        <span>0.0001 QWR</span>
+      </div>
+      <div class="summary-row">
+        <span class="summary-label">Total</span>
+        <span id="confirm-total"></span>
+      </div>
+    </div>
+    <div class="warn-box">⚠️ Double-check the address. Transactions are irreversible.</div>
+    <p id="confirm-err" style="color:var(--danger);font-size:0.85rem;min-height:1.2em"></p>
+    <button class="btn btn-gold btn-full" id="btn-confirm-send">🚀 Confirm &amp; Send</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     SCREEN: HISTORY
+═══════════════════════════════════════════════════════ -->
+<div id="screen-history" class="screen">
+  <div class="topbar">
+    <button class="back-btn" id="history-back">‹</button>
+    <span class="topbar-title">History</span>
+  </div>
+  <div class="content" style="gap:1rem">
+    <div class="card" style="padding:0" id="history-list">
+      <div style="padding:2rem;text-align:center;color:var(--text2)">Loading…</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     SCREEN: SETTINGS
+═══════════════════════════════════════════════════════ -->
+<div id="screen-settings" class="screen">
+  <div class="topbar">
+    <button class="back-btn" id="settings-back">‹</button>
+    <span class="topbar-title">Settings</span>
+  </div>
+  <div class="content" style="gap:0.7rem">
+    <button class="settings-item" id="btn-backup">
+      <span class="icon">🔑</span>Backup Private Key
+    </button>
+    <button class="settings-item" id="btn-go-import2">
+      <span class="icon">📥</span>Import Wallet
+    </button>
+    <button class="settings-item danger" id="btn-clear">
+      <span class="icon">🗑️</span>Clear Wallet
+    </button>
+    <p style="font-size:0.8rem;text-align:center;margin-top:0.5rem">
+      QWR Wallet v1.0 — non-custodial
+    </p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     SCREEN: IMPORT
+═══════════════════════════════════════════════════════ -->
+<div id="screen-import" class="screen">
+  <div class="topbar">
+    <button class="back-btn" id="import-back">‹</button>
+    <span class="topbar-title">Import Wallet</span>
+  </div>
+  <div class="content" style="gap:1rem">
+    <div class="warn-box">⚠️ Only import WIF keys from wallets you control. Your key is stored only on this device.</div>
+    <div class="input-wrap">
+      <div class="input-label">WIF Private Key</div>
+      <textarea id="import-wif" rows="3" placeholder="Paste your WIF private key here…"
+                style="resize:none;font-family:monospace;font-size:0.85rem"></textarea>
+    </div>
+    <p id="import-err" style="color:var(--danger);font-size:0.85rem;min-height:1.2em"></p>
+    <button class="btn btn-gold btn-full" id="btn-do-import">Import →</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     SCREEN: BACKUP
+═══════════════════════════════════════════════════════ -->
+<div id="screen-backup" class="screen">
+  <div class="topbar">
+    <button class="back-btn" id="backup-back">‹</button>
+    <span class="topbar-title">Backup Key</span>
+  </div>
+  <div class="content" style="gap:1rem">
+    <div class="warn-box">
+      ⚠️ <strong>NEVER share this key with anyone.</strong><br />
+      Anyone who has this key controls your funds.<br />
+      Write it down and keep it safe offline.
+    </div>
+    <div class="card">
+      <div class="input-label" style="margin-bottom:0.5rem">WIF Private Key</div>
+      <div class="mono" id="backup-wif" style="color:var(--text);font-size:0.8rem;word-break:break-all"></div>
+    </div>
+    <button class="btn btn-outline btn-full" id="btn-copy-wif">📋 Copy WIF Key</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     SCREEN: PIN VERIFY
+═══════════════════════════════════════════════════════ -->
+<div id="screen-pin-verify" class="screen">
+  <div class="topbar">
+    <button class="back-btn" id="verify-back">‹</button>
+    <span class="topbar-title">Enter PIN</span>
+  </div>
+  <div class="content" style="align-items:center;gap:1rem;max-width:380px;margin:0 auto;width:100%;padding-top:2rem">
+    <p style="text-align:center">Enter your 6-digit PIN to continue</p>
+    <div class="pin-dots">
+      <div class="pin-dot" id="vd-0"></div>
+      <div class="pin-dot" id="vd-1"></div>
+      <div class="pin-dot" id="vd-2"></div>
+      <div class="pin-dot" id="vd-3"></div>
+      <div class="pin-dot" id="vd-4"></div>
+      <div class="pin-dot" id="vd-5"></div>
+    </div>
+    <input type="tel" id="pin-verify-input" inputmode="numeric" pattern="[0-9]*"
+           maxlength="6" class="pin-input-hidden" autocomplete="off" />
+    <button class="btn btn-gold btn-full" id="pin-verify-focus-btn"
+            style="max-width:280px">Tap to enter PIN</button>
+    <button class="btn btn-gold btn-full" id="pin-verify-confirm" style="max-width:280px" disabled>
+      Unlock
+    </button>
+    <p id="pin-verify-err" style="color:var(--danger);font-size:0.85rem;min-height:1.2em;text-align:center"></p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     EXTERNAL SCRIPTS (non-module globals)
+═══════════════════════════════════════════════════════ -->
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+
+<!-- ═══════════════════════════════════════════════════════
+     MAIN WALLET MODULE
+═══════════════════════════════════════════════════════ -->
+<script type="module">
+import * as secp from 'https://esm.sh/@noble/secp256k1@2.0.0';
+import { sha256 } from 'https://esm.sh/@noble/hashes@1.4.0/sha256';
+import { ripemd160 } from 'https://esm.sh/@noble/hashes@1.4.0/ripemd160';
+
+// ════════════════════════════════════════════════════════════
+// CONSTANTS
+// ════════════════════════════════════════════════════════════
+const API           = 'https://api.qweercoin.com';
+const P2PKH_VERSION = 58;   // 0x3A → addresses start with "Q"
+const WIF_VERSION   = 186;  // 0xBA
+const FEE_SAT       = 10000n;
+const BASE58        = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
+
+// ════════════════════════════════════════════════════════════
+// ENCODING UTILITIES
+// ════════════════════════════════════════════════════════════
+function toHex(bytes) {
+  return Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+function fromHex(hex) {
+  if (hex.length % 2) hex = '0' + hex;
+  return new Uint8Array(hex.match(/.{2}/g).map(h => parseInt(h, 16)));
+}
+
+function sha256d(data) {
+  return sha256(sha256(data));
+}
+
+function base58Encode(bytes) {
+  let n = 0n;
+  for (const b of bytes) n = n * 256n + BigInt(b);
+  let str = '';
+  while (n > 0n) {
+    str = BASE58[Number(n % 58n)] + str;
+    n = n / 58n;
+  }
+  for (const b of bytes) {
+    if (b !== 0) break;
+    str = '1' + str;
+  }
+  return str;
+}
+
+function base58Decode(str) {
+  let n = 0n;
+  for (const ch of str) {
+    const idx = BASE58.indexOf(ch);
+    if (idx < 0) throw new Error('Invalid base58 char: ' + ch);
+    n = n * 58n + BigInt(idx);
+  }
+  const bytes = [];
+  while (n > 0n) { bytes.unshift(Number(n & 0xffn)); n >>= 8n; }
+  for (const ch of str) {
+    if (ch !== '1') break;
+    bytes.unshift(0);
+  }
+  return new Uint8Array(bytes);
+}
+
+function b58cEncode(versionByte, payload) {
+  const data = new Uint8Array([versionByte, ...payload]);
+  const checksum = sha256d(data).slice(0, 4);
+  return base58Encode(new Uint8Array([...data, ...checksum]));
+}
+
+function b58cDecode(str) {
+  const bytes = base58Decode(str);
+  if (bytes.length < 5) throw new Error('Too short');
+  const payload  = bytes.slice(0, -4);
+  const checksum = bytes.slice(-4);
+  const expected = sha256d(payload).slice(0, 4);
+  if (!checksum.every((b, i) => b === expected[i])) throw new Error('Bad checksum');
+  return payload; // [version, ...data]
+}
+
+// ════════════════════════════════════════════════════════════
+// WALLET GENERATION
+// ════════════════════════════════════════════════════════════
+function generateWallet() {
+  const privkey = secp.utils.randomPrivateKey();
+  return privkeyToWallet(privkey);
+}
+
+function privkeyToWallet(privkey) {
+  const pubkey     = secp.getPublicKey(privkey, true); // compressed 33 bytes
+  const pkh        = ripemd160(sha256(pubkey));         // 20-byte pubKeyHash
+  const address    = b58cEncode(P2PKH_VERSION, pkh);
+  const wif        = b58cEncode(WIF_VERSION, new Uint8Array([...privkey, 0x01]));
+  return { privkey, pubkey, pkh, address, wif };
+}
+
+function importWIF(wifStr) {
+  const decoded = b58cDecode(wifStr.trim());
+  if (decoded[0] !== WIF_VERSION) throw new Error('Wrong WIF version byte');
+  // Accept both compressed (34 bytes incl version) and uncompressed (33)
+  const privkey = decoded.slice(1, 33);
+  if (privkey.length !== 32) throw new Error('Invalid WIF length');
+  return privkeyToWallet(privkey);
+}
+
+// ════════════════════════════════════════════════════════════
+// TRANSACTION BUILDING
+// ════════════════════════════════════════════════════════════
+function u32LE(n) {
+  const b = new Uint8Array(4);
+  new DataView(b.buffer).setUint32(0, n >>> 0, true);
+  return b;
+}
+
+function u64LE(sat) {
+  const b   = new Uint8Array(8);
+  const dv  = new DataView(b.buffer);
+  const lo  = Number(sat & 0xffffffffn);
+  const hi  = Number(sat >> 32n);
+  dv.setUint32(0, lo, true);
+  dv.setUint32(4, hi, true);
+  return b;
+}
+
+function varint(n) {
+  if (n < 0xfd) return new Uint8Array([n]);
+  if (n < 0x10000) {
+    const b = new Uint8Array(3); b[0] = 0xfd;
+    new DataView(b.buffer).setUint16(1, n, true); return b;
+  }
+  const b = new Uint8Array(5); b[0] = 0xfe;
+  new DataView(b.buffer).setUint32(1, n, true); return b;
+}
+
+function concat(...arrays) {
+  const len = arrays.reduce((s, a) => s + a.length, 0);
+  const out = new Uint8Array(len);
+  let off = 0;
+  for (const a of arrays) { out.set(a, off); off += a.length; }
+  return out;
+}
+
+function p2pkhScript(pkh20) {
+  return new Uint8Array([0x76, 0xa9, 0x14, ...pkh20, 0x88, 0xac]);
+}
+
+function pushData(bytes) {
+  // OP_PUSHDATA with correct opcode (≤75 bytes → 1 byte length prefix)
+  return new Uint8Array([bytes.length, ...bytes]);
+}
+
+// Build and sign a P2PKH transaction
+// utxos: [{txid, vout, scriptPubKey(hex), satoshis}]
+// returns hex-encoded signed raw tx
+function buildSignedTx(utxos, toAddr, amountSat, changeAddr, privkey, pubkey) {
+  const amount = BigInt(amountSat);
+  const total  = utxos.reduce((s, u) => s + BigInt(u.satoshis), 0n);
+  const change = total - amount - FEE_SAT;
+  if (change < 0n) throw new Error('Insufficient funds');
+
+  // Decode destination pubKeyHash
+  const toDecoded  = b58cDecode(toAddr);
+  const toPkh      = toDecoded.slice(1);
+  const chDecoded  = b58cDecode(changeAddr);
+  const chPkh      = chDecoded.slice(1);
+
+  // Outputs
+  const outputs = [{ satoshis: amount, script: p2pkhScript(toPkh) }];
+  if (change >= 546n) outputs.push({ satoshis: change, script: p2pkhScript(chPkh) });
+
+  // Sign each input
+  const scriptSigs = utxos.map((utxo, idx) => {
+    const subscript = fromHex(utxo.scriptPubKey);
+    const preimage  = serializeForSigning(utxos, outputs, idx, subscript);
+    const hashBuf   = sha256d(preimage);
+    const sig       = secp.sign(hashBuf, privkey, { lowS: true });
+    const derSig    = new Uint8Array([...sig.toDERRawBytes(), 0x01]); // + SIGHASH_ALL
+    return concat(pushData(derSig), pushData(pubkey));
+  });
+
+  return toHex(serializeSignedTx(utxos, outputs, scriptSigs));
+}
+
+function serializeForSigning(inputs, outputs, sigIdx, subscript) {
+  const parts = [u32LE(1)]; // version
+  parts.push(varint(inputs.length));
+  for (let i = 0; i < inputs.length; i++) {
+    const inp    = inputs[i];
+    const txidLE = fromHex(inp.txid).reverse();
+    const script = (i === sigIdx) ? subscript : new Uint8Array(0);
+    parts.push(txidLE, u32LE(inp.vout), varint(script.length), script,
+               new Uint8Array([0xff, 0xff, 0xff, 0xff])); // sequence
+  }
+  parts.push(varint(outputs.length));
+  for (const out of outputs) {
+    parts.push(u64LE(out.satoshis), varint(out.script.length), out.script);
+  }
+  parts.push(u32LE(0)); // locktime
+  parts.push(new Uint8Array([0x01, 0x00, 0x00, 0x00])); // SIGHASH_ALL
+  return concat(...parts);
+}
+
+function serializeSignedTx(inputs, outputs, scriptSigs) {
+  const parts = [u32LE(1)];
+  parts.push(varint(inputs.length));
+  for (let i = 0; i < inputs.length; i++) {
+    const inp    = inputs[i];
+    const txidLE = fromHex(inp.txid).reverse();
+    const ss     = scriptSigs[i];
+    parts.push(txidLE, u32LE(inp.vout), varint(ss.length), ss,
+               new Uint8Array([0xff, 0xff, 0xff, 0xff]));
+  }
+  parts.push(varint(outputs.length));
+  for (const out of outputs) {
+    parts.push(u64LE(out.satoshis), varint(out.script.length), out.script);
+  }
+  parts.push(u32LE(0));
+  return concat(...parts);
+}
+
+// Select UTXOs (smallest-first) until we cover amount + fee
+function selectUTXOs(utxos, amountSat) {
+  const needed = BigInt(amountSat) + FEE_SAT;
+  const sorted = [...utxos].sort((a, b) => a.satoshis - b.satoshis);
+  const selected = [];
+  let total = 0n;
+  for (const u of sorted) {
+    selected.push(u);
+    total += BigInt(u.satoshis);
+    if (total >= needed) return { selected, total };
+  }
+  return { selected, total }; // caller checks sufficiency
+}
+
+// ════════════════════════════════════════════════════════════
+// API CLIENT
+// ════════════════════════════════════════════════════════════
+async function apiGet(path) {
+  const res = await fetch(API + path);
+  if (!res.ok) {
+    const e = await res.json().catch(() => ({}));
+    throw new Error(e.error || `HTTP ${res.status}`);
+  }
+  return res.json();
+}
+
+async function apiPost(path, body) {
+  const res = await fetch(API + path, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) {
+    const e = await res.json().catch(() => ({}));
+    throw new Error(e.error || `HTTP ${res.status}`);
+  }
+  return res.json();
+}
+
+async function fetchBalance(address) {
+  const data = await apiGet(`/api/balance/${address}`);
+  return { balance: data.balance, satoshis: data.satoshis };
+}
+
+async function fetchUTXOs(address) {
+  return apiGet(`/api/utxos/${address}`);
+}
+
+async function fetchTransactions(address) {
+  return apiGet(`/api/transactions/${address}`);
+}
+
+async function broadcast(rawtx) {
+  return apiPost('/api/broadcast', { rawtx });
+}
+
+// ════════════════════════════════════════════════════════════
+// STORAGE
+// ════════════════════════════════════════════════════════════
+const LS = {
+  get wif()     { return localStorage.getItem('qwr_wif');      },
+  get address() { return localStorage.getItem('qwr_address');  },
+  get pinHash() { return localStorage.getItem('qwr_pin_hash'); },
+  save(wallet) {
+    localStorage.setItem('qwr_wif',     wallet.wif);
+    localStorage.setItem('qwr_address', wallet.address);
+  },
+  clear() {
+    ['qwr_wif','qwr_address','qwr_pin_hash'].forEach(k => localStorage.removeItem(k));
+  },
+  savePin(hexHash) {
+    localStorage.setItem('qwr_pin_hash', hexHash);
+  },
+};
+
+// ════════════════════════════════════════════════════════════
+// PIN SYSTEM
+// ════════════════════════════════════════════════════════════
+let wrongAttempts = 0;
+let lockoutUntil  = 0;
+
+function sha256hex(str) {
+  return toHex(sha256(new TextEncoder().encode(str)));
+}
+
+function pinSetup(pin) {
+  LS.savePin(sha256hex(pin));
+}
+
+// Returns true if correct, throws if locked/wrong
+function pinVerify(pin) {
+  const now = Date.now();
+  if (now < lockoutUntil) {
+    const s = Math.ceil((lockoutUntil - now) / 1000);
+    throw new Error(`Too many attempts. Try again in ${s}s`);
+  }
+  const correct = sha256hex(pin) === LS.pinHash;
+  if (correct) {
+    wrongAttempts = 0;
+    return true;
+  }
+  wrongAttempts++;
+  if (wrongAttempts >= 3) {
+    lockoutUntil  = now + 30000;
+    wrongAttempts = 0;
+    throw new Error('Too many attempts. Locked for 30 seconds.');
+  }
+  const left = 3 - wrongAttempts;
+  throw new Error(`Wrong PIN. ${left} attempt${left !== 1 ? 's' : ''} remaining.`);
+}
+
+// ════════════════════════════════════════════════════════════
+// UI HELPERS
+// ════════════════════════════════════════════════════════════
+let currentScreen = 'screen-welcome';
+let screenStack   = [];
+let pendingAction = null; // callback after PIN verify
+
+function showScreen(id, push = true) {
+  if (push && currentScreen) screenStack.push(currentScreen);
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  currentScreen = id;
+  window.scrollTo(0, 0);
+}
+
+function goBack() {
+  if (screenStack.length) showScreen(screenStack.pop(), false);
+}
+
+let toastTimer = null;
+function toast(msg, duration = 2500) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), duration);
+}
+
+function loading(show, msg = 'Loading…') {
+  document.getElementById('loading').classList.toggle('show', show);
+  document.getElementById('loading-msg').textContent = msg;
+}
+
+function copyText(text) {
+  navigator.clipboard.writeText(text)
+    .then(() => toast('Copied!'))
+    .catch(() => {
+      // Fallback
+      const el = document.createElement('textarea');
+      el.value = text; el.style.position = 'fixed'; el.style.opacity = '0';
+      document.body.appendChild(el); el.select();
+      document.execCommand('copy');
+      document.body.removeChild(el);
+      toast('Copied!');
+    });
+}
+
+function formatQWR(satoshis) {
+  const n = Number(satoshis) / 1e8;
+  return n.toFixed(4);
+}
+
+function truncateAddr(addr) {
+  return addr.slice(0, 8) + '…' + addr.slice(-8);
+}
+
+// ════════════════════════════════════════════════════════════
+// QR CODE GENERATION
+// ════════════════════════════════════════════════════════════
+function renderQR(text) {
+  const canvas = document.getElementById('qr-canvas');
+  QRCode.toCanvas(canvas, text, {
+    width: 200,
+    color: { dark: '#000000', light: '#ffffff' },
+    errorCorrectionLevel: 'M',
+  }).catch(console.error);
+}
+
+// ════════════════════════════════════════════════════════════
+// QR SCANNER
+// ════════════════════════════════════════════════════════════
+let scanner = null;
+
+async function startScanner(onResult) {
+  const modal = document.getElementById('scanner-modal');
+  modal.classList.add('show');
+  await stopScanner(); // clean up any prior instance
+  try {
+    scanner = new Html5Qrcode('scanner-container');
+    await scanner.start(
+      { facingMode: 'environment' },
+      { fps: 10, qrbox: { width: 250, height: 250 } },
+      decoded => { stopScanner(); onResult(decoded); },
+      () => {}
+    );
+  } catch (e) {
+    modal.classList.remove('show');
+    toast('Camera not available');
+  }
+}
+
+async function stopScanner() {
+  document.getElementById('scanner-modal').classList.remove('show');
+  if (scanner) {
+    try { await scanner.stop(); } catch (_) {}
+    scanner = null;
+  }
+}
+
+// ════════════════════════════════════════════════════════════
+// PIN UI HELPERS (shared between setup & verify screens)
+// ════════════════════════════════════════════════════════════
+function updateDots(prefix, count) {
+  for (let i = 0; i < 6; i++) {
+    document.getElementById(`${prefix}${i}`)
+      .classList.toggle('filled', i < count);
+  }
+}
+
+// ════════════════════════════════════════════════════════════
+// APP STATE
+// ════════════════════════════════════════════════════════════
+let currentBalance = 0; // satoshis
+let pendingTx = null;   // {utxos, toAddr, amount, rawtx}
+
+// ════════════════════════════════════════════════════════════
+// SCREEN: WELCOME
+// ════════════════════════════════════════════════════════════
+document.getElementById('btn-create').addEventListener('click', () => {
+  const wallet = generateWallet();
+  LS.save(wallet);
+  showScreen('screen-pin-setup');
+});
+
+document.getElementById('btn-go-import').addEventListener('click', () => {
+  showScreen('screen-import');
+});
+
+// ════════════════════════════════════════════════════════════
+// SCREEN: PIN SETUP
+// ════════════════════════════════════════════════════════════
+const pinSetupInput   = document.getElementById('pin-setup-input');
+const pinSetupConfirm = document.getElementById('pin-setup-confirm');
+const pinSetupErr     = document.getElementById('pin-setup-err');
+
+document.getElementById('pin-setup-focus-btn').addEventListener('click', () => {
+  pinSetupInput.style.position = 'fixed';
+  pinSetupInput.style.opacity  = '0';
+  pinSetupInput.style.width    = '1px';
+  pinSetupInput.style.height   = '1px';
+  pinSetupInput.focus();
+});
+
+pinSetupInput.addEventListener('input', () => {
+  const val = pinSetupInput.value.replace(/\D/g, '').slice(0, 6);
+  pinSetupInput.value = val;
+  updateDots('sd-', val.length);
+  pinSetupConfirm.disabled = val.length < 6;
+  pinSetupErr.textContent = '';
+});
+
+pinSetupConfirm.addEventListener('click', () => {
+  const pin = pinSetupInput.value.replace(/\D/g, '');
+  if (pin.length !== 6) { pinSetupErr.textContent = 'Enter 6 digits'; return; }
+  pinSetup(pin);
+  pinSetupInput.value = '';
+  updateDots('sd-', 0);
+  pinSetupConfirm.disabled = true;
+  showScreen('screen-home', false);
+  initHome();
+});
+
+// ════════════════════════════════════════════════════════════
+// SCREEN: HOME
+// ════════════════════════════════════════════════════════════
+async function initHome() {
+  const addr = LS.address;
+  if (!addr) { showScreen('screen-welcome', false); return; }
+  document.getElementById('home-addr').textContent = truncateAddr(addr);
+  document.getElementById('home-balance').innerHTML = '—<span>QWR</span>';
+  refreshBalance();
+}
+
+async function refreshBalance() {
+  const addr = LS.address;
+  const btn  = document.getElementById('home-refresh');
+  btn.classList.add('spinning');
+  try {
+    const { satoshis } = await fetchBalance(addr);
+    currentBalance = satoshis;
+    document.getElementById('home-balance').innerHTML =
+      `${formatQWR(satoshis)}<span>QWR</span>`;
+  } catch (e) {
+    document.getElementById('home-balance').innerHTML = '?<span>QWR</span>';
+  } finally {
+    btn.classList.remove('spinning');
+  }
+}
+
+document.getElementById('home-refresh').addEventListener('click', refreshBalance);
+document.getElementById('home-addr').addEventListener('click', () => {
+  if (LS.address) copyText(LS.address);
+});
+
+document.getElementById('btn-send').addEventListener('click', () => {
+  document.getElementById('send-available').textContent =
+    formatQWR(currentBalance) + ' QWR';
+  document.getElementById('send-err').textContent = '';
+  document.getElementById('send-to').value    = '';
+  document.getElementById('send-amount').value = '';
+  showScreen('screen-send');
+});
+
+document.getElementById('btn-receive').addEventListener('click', () => {
+  const addr = LS.address || '';
+  document.getElementById('receive-addr').textContent = addr;
+  renderQR(addr);
+  showScreen('screen-receive');
+});
+
+document.getElementById('btn-history').addEventListener('click', () => {
+  pendingAction = loadHistory;
+  showScreen('screen-pin-verify');
+});
+
+document.getElementById('btn-settings').addEventListener('click', () => {
+  showScreen('screen-settings');
+});
+
+// ════════════════════════════════════════════════════════════
+// SCREEN: RECEIVE
+// ════════════════════════════════════════════════════════════
+document.getElementById('receive-back').addEventListener('click', goBack);
+document.getElementById('btn-copy-addr').addEventListener('click', () => {
+  if (LS.address) copyText(LS.address);
+});
+
+// ════════════════════════════════════════════════════════════
+// SCREEN: SEND
+// ════════════════════════════════════════════════════════════
+document.getElementById('send-back').addEventListener('click', goBack);
+
+document.getElementById('btn-scan').addEventListener('click', () => {
+  startScanner(decoded => {
+    // strip "qweercoin:" prefix if present
+    const addr = decoded.replace(/^[a-z]+:/i, '').trim();
+    document.getElementById('send-to').value = addr;
+  });
+});
+
+document.getElementById('scanner-cancel-btn').addEventListener('click', stopScanner);
+
+document.getElementById('btn-preview').addEventListener('click', async () => {
+  const toAddr = document.getElementById('send-to').value.trim();
+  const amtStr = document.getElementById('send-amount').value.trim();
+  const errEl  = document.getElementById('send-err');
+  errEl.textContent = '';
+
+  if (!toAddr || !toAddr.startsWith('Q')) {
+    errEl.textContent = 'Enter a valid Q… address'; return;
+  }
+  const amtFloat = parseFloat(amtStr);
+  if (!amtFloat || amtFloat <= 0) {
+    errEl.textContent = 'Enter a valid amount'; return;
+  }
+  const amtSat = Math.round(amtFloat * 1e8);
+
+  loading(true, 'Fetching UTXOs…');
+  try {
+    const utxos = await fetchUTXOs(LS.address);
+    const { selected, total } = selectUTXOs(utxos, amtSat);
+    if (total < BigInt(amtSat) + FEE_SAT) {
+      loading(false);
+      errEl.textContent = 'Insufficient funds (need ' +
+        formatQWR(amtSat + Number(FEE_SAT)) + ' QWR)';
+      return;
+    }
+
+    // Build & sign now (before confirm screen)
+    const wif    = LS.wif;
+    const wallet = importWIF(wif);
+    const rawtx  = buildSignedTx(selected, toAddr, amtSat,
+                                 LS.address, wallet.privkey, wallet.pubkey);
+
+    const total_fee = Number(FEE_SAT);
+    pendingTx = { toAddr, amtSat, rawtx };
+
+    document.getElementById('confirm-to').textContent     = toAddr;
+    document.getElementById('confirm-amount').textContent = formatQWR(amtSat) + ' QWR';
+    document.getElementById('confirm-total').textContent  =
+      formatQWR(amtSat + total_fee) + ' QWR';
+    document.getElementById('confirm-err').textContent    = '';
+
+    loading(false);
+    showScreen('screen-confirm');
+  } catch (e) {
+    loading(false);
+    errEl.textContent = e.message;
+  }
+});
+
+// ════════════════════════════════════════════════════════════
+// SCREEN: CONFIRM
+// ════════════════════════════════════════════════════════════
+document.getElementById('confirm-back').addEventListener('click', goBack);
+
+document.getElementById('btn-confirm-send').addEventListener('click', async () => {
+  const errEl = document.getElementById('confirm-err');
+  errEl.textContent = '';
+  if (!pendingTx) return;
+
+  loading(true, 'Broadcasting…');
+  try {
+    const { txid } = await broadcast(pendingTx.rawtx);
+    loading(false);
+    pendingTx = null;
+    toast('✓ Sent! txid: ' + txid.slice(0, 12) + '…', 4000);
+    // Return to home and refresh
+    screenStack = [];
+    showScreen('screen-home', false);
+    setTimeout(refreshBalance, 2000);
+  } catch (e) {
+    loading(false);
+    errEl.textContent = 'Broadcast failed: ' + e.message;
+  }
+});
+
+// ════════════════════════════════════════════════════════════
+// SCREEN: HISTORY
+// ════════════════════════════════════════════════════════════
+document.getElementById('history-back').addEventListener('click', goBack);
+
+async function loadHistory() {
+  showScreen('screen-history');
+  const listEl = document.getElementById('history-list');
+  listEl.innerHTML = '<div style="padding:2rem;text-align:center;color:var(--text2)">Loading…</div>';
+  try {
+    const txs = await fetchTransactions(LS.address);
+    if (!txs.length) {
+      listEl.innerHTML = '<div style="padding:2rem;text-align:center;color:var(--text2)">No transactions yet</div>';
+      return;
+    }
+    listEl.innerHTML = txs.map(tx => `
+      <div class="tx-item">
+        <div class="tx-left">
+          <div class="tx-type">${tx.type}</div>
+          <div class="tx-id">${tx.txid.slice(0,14)}…</div>
+          ${tx.height > 0
+            ? `<div class="tx-id">Block #${tx.height}</div>`
+            : `<div class="tx-type" style="color:var(--gold-dim)">PENDING</div>`}
+        </div>
+        <div class="tx-amount">+${formatQWR(tx.satoshis)} QWR</div>
+      </div>`).join('');
+  } catch (e) {
+    listEl.innerHTML = `<div style="padding:2rem;text-align:center;color:var(--danger)">${e.message}</div>`;
+  }
+}
+
+// ════════════════════════════════════════════════════════════
+// SCREEN: SETTINGS
+// ════════════════════════════════════════════════════════════
+document.getElementById('settings-back').addEventListener('click', goBack);
+
+document.getElementById('btn-backup').addEventListener('click', () => {
+  const wif = LS.wif;
+  if (!wif) { toast('No wallet found'); return; }
+  document.getElementById('backup-wif').textContent = wif;
+  showScreen('screen-backup');
+});
+
+document.getElementById('btn-go-import2').addEventListener('click', () => {
+  showScreen('screen-import');
+});
+
+document.getElementById('btn-clear').addEventListener('click', () => {
+  if (!confirm('Clear wallet from this device? Make sure you have backed up your WIF key.')) return;
+  LS.clear();
+  screenStack = [];
+  showScreen('screen-welcome', false);
+});
+
+// ════════════════════════════════════════════════════════════
+// SCREEN: IMPORT
+// ════════════════════════════════════════════════════════════
+document.getElementById('import-back').addEventListener('click', goBack);
+
+document.getElementById('btn-do-import').addEventListener('click', () => {
+  const wifStr = document.getElementById('import-wif').value.trim();
+  const errEl  = document.getElementById('import-err');
+  errEl.textContent = '';
+  try {
+    const wallet = importWIF(wifStr);
+    LS.save(wallet);
+    document.getElementById('import-wif').value = '';
+    // If no PIN set, go to PIN setup; otherwise go to home
+    if (!LS.pinHash) {
+      showScreen('screen-pin-setup', false);
+    } else {
+      screenStack = [];
+      showScreen('screen-home', false);
+      initHome();
+    }
+  } catch (e) {
+    errEl.textContent = 'Invalid WIF: ' + e.message;
+  }
+});
+
+// ════════════════════════════════════════════════════════════
+// SCREEN: BACKUP
+// ════════════════════════════════════════════════════════════
+document.getElementById('backup-back').addEventListener('click', goBack);
+document.getElementById('btn-copy-wif').addEventListener('click', () => {
+  const wif = LS.wif;
+  if (wif) copyText(wif);
+});
+
+// ════════════════════════════════════════════════════════════
+// SCREEN: PIN VERIFY
+// ════════════════════════════════════════════════════════════
+const pinVerifyInput   = document.getElementById('pin-verify-input');
+const pinVerifyConfirm = document.getElementById('pin-verify-confirm');
+const pinVerifyErr     = document.getElementById('pin-verify-err');
+
+document.getElementById('verify-back').addEventListener('click', () => {
+  pinVerifyInput.value = '';
+  updateDots('vd-', 0);
+  pinVerifyConfirm.disabled = true;
+  pendingAction = null;
+  goBack();
+});
+
+document.getElementById('pin-verify-focus-btn').addEventListener('click', () => {
+  pinVerifyInput.style.position = 'fixed';
+  pinVerifyInput.style.opacity  = '0';
+  pinVerifyInput.style.width    = '1px';
+  pinVerifyInput.style.height   = '1px';
+  pinVerifyInput.focus();
+});
+
+pinVerifyInput.addEventListener('input', () => {
+  const val = pinVerifyInput.value.replace(/\D/g, '').slice(0, 6);
+  pinVerifyInput.value = val;
+  updateDots('vd-', val.length);
+  pinVerifyConfirm.disabled = val.length < 6;
+  pinVerifyErr.textContent  = '';
+});
+
+pinVerifyConfirm.addEventListener('click', () => {
+  const pin = pinVerifyInput.value.replace(/\D/g, '');
+  if (pin.length !== 6) return;
+  try {
+    pinVerify(pin);
+    pinVerifyInput.value = '';
+    updateDots('vd-', 0);
+    pinVerifyConfirm.disabled = true;
+    pinVerifyErr.textContent  = '';
+    if (pendingAction) {
+      const fn = pendingAction;
+      pendingAction = null;
+      fn();
+    }
+  } catch (e) {
+    pinVerifyInput.value = '';
+    updateDots('vd-', 0);
+    pinVerifyConfirm.disabled = true;
+    pinVerifyErr.textContent  = e.message;
+  }
+});
+
+// ════════════════════════════════════════════════════════════
+// APP INIT
+// ════════════════════════════════════════════════════════════
+function init() {
+  // Register service worker
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/wallet/sw.js', { scope: '/wallet/' })
+      .catch(e => console.warn('SW registration failed:', e));
+  }
+
+  // Route to correct starting screen
+  if (LS.address) {
+    showScreen('screen-home', false);
+    initHome();
+  } else {
+    showScreen('screen-welcome', false);
+  }
+}
+
+init();
+</script>
+</body>
+</html>
