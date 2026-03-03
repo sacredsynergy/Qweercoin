@@ -647,7 +647,7 @@
     </div>
     <div class="warn-box">⚠️ Double-check the address. Transactions are irreversible.</div>
     <p id="confirm-err" style="color:var(--danger);font-size:0.85rem;min-height:1.2em"></p>
-    <button class="btn btn-gold btn-full" id="btn-confirm-send">🚀 Confirm &amp; Send</button>
+    <button class="btn btn-gold btn-full" id="btn-confirm-send">🔐 Enter PIN &amp; Send</button>
   </div>
 </div>
 
@@ -771,8 +771,8 @@
      MAIN WALLET MODULE
 ═══════════════════════════════════════════════════════ -->
 <script type="module">
-import * as secp from 'https://esm.sh/@noble/secp256k1@2.0.0';
-import { sha256 } from 'https://esm.sh/@noble/hashes@1.4.0/sha256';
+import * as secp   from 'https://esm.sh/@noble/secp256k1@2.0.0';
+import { sha256 }   from 'https://esm.sh/@noble/hashes@1.4.0/sha256';
 import { ripemd160 } from 'https://esm.sh/@noble/hashes@1.4.0/ripemd160';
 
 // ════════════════════════════════════════════════════════════
@@ -1044,58 +1044,89 @@ async function broadcast(rawtx) {
 }
 
 // ════════════════════════════════════════════════════════════
-// STORAGE
+// STORAGE  (address public; private key AES-GCM encrypted)
 // ════════════════════════════════════════════════════════════
 const LS = {
-  get wif()     { return localStorage.getItem('qwr_wif');      },
-  get address() { return localStorage.getItem('qwr_address');  },
-  get pinHash() { return localStorage.getItem('qwr_pin_hash'); },
-  save(wallet) {
-    localStorage.setItem('qwr_wif',     wallet.wif);
-    localStorage.setItem('qwr_address', wallet.address);
-  },
+  get address()  { return localStorage.getItem('qwr_address'); },
+  get encKey()   { return localStorage.getItem('qwr_enc_key'); },
+  get hasWallet(){ return !!(this.address && this.encKey);     },
+  // Legacy plaintext WIF from v1 (migration path)
+  get legacyWif(){ return localStorage.getItem('qwr_wif');     },
+  saveAddress(addr) { localStorage.setItem('qwr_address', addr); },
+  saveEncKey(enc)   { localStorage.setItem('qwr_enc_key', JSON.stringify(enc)); },
   clear() {
-    ['qwr_wif','qwr_address','qwr_pin_hash'].forEach(k => localStorage.removeItem(k));
-  },
-  savePin(hexHash) {
-    localStorage.setItem('qwr_pin_hash', hexHash);
+    ['qwr_address','qwr_enc_key','qwr_wif','qwr_pin_hash'].forEach(k => localStorage.removeItem(k));
   },
 };
 
 // ════════════════════════════════════════════════════════════
-// PIN SYSTEM
+// CRYPTO KEY STORAGE  (PBKDF2 → AES-256-GCM)
 // ════════════════════════════════════════════════════════════
-let wrongAttempts = 0;
-let lockoutUntil  = 0;
+const PBKDF2_ITERS = 200000;
 
-function sha256hex(str) {
-  return toHex(sha256(new TextEncoder().encode(str)));
+async function encryptWIF(wif, pin) {
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+  const iv   = crypto.getRandomValues(new Uint8Array(12));
+  const km   = await crypto.subtle.importKey(
+    'raw', new TextEncoder().encode(pin), 'PBKDF2', false, ['deriveKey']);
+  const key  = await crypto.subtle.deriveKey(
+    { name: 'PBKDF2', salt, iterations: PBKDF2_ITERS, hash: 'SHA-256' },
+    km, { name: 'AES-GCM', length: 256 }, false, ['encrypt']);
+  const ct   = await crypto.subtle.encrypt(
+    { name: 'AES-GCM', iv }, key, new TextEncoder().encode(wif));
+  return { ct: toHex(new Uint8Array(ct)), salt: toHex(salt), iv: toHex(iv) };
 }
 
-function pinSetup(pin) {
-  LS.savePin(sha256hex(pin));
+// Returns decrypted WIF string, or throws on wrong PIN / tampered data
+async function decryptWIF(pin) {
+  const raw = LS.encKey;
+  if (!raw) throw new Error('No wallet found');
+  const { ct, salt, iv } = JSON.parse(raw);
+  const km  = await crypto.subtle.importKey(
+    'raw', new TextEncoder().encode(pin), 'PBKDF2', false, ['deriveKey']);
+  const key = await crypto.subtle.deriveKey(
+    { name: 'PBKDF2', salt: fromHex(salt), iterations: PBKDF2_ITERS, hash: 'SHA-256' },
+    km, { name: 'AES-GCM', length: 256 }, false, ['decrypt']);
+  try {
+    const pt = await crypto.subtle.decrypt(
+      { name: 'AES-GCM', iv: fromHex(iv) }, key, fromHex(ct));
+    return new TextDecoder().decode(pt);
+  } catch {
+    throw new Error('Wrong PIN');
+  }
 }
 
-// Returns true if correct, throws if locked/wrong
-function pinVerify(pin) {
+// ════════════════════════════════════════════════════════════
+// PIN LOCKOUT  (sessionStorage — survives refresh, not new tab)
+// ════════════════════════════════════════════════════════════
+function getLockoutUntil() { return parseInt(sessionStorage.getItem('qwr_lu')  || '0'); }
+function setLockoutUntil(t){ sessionStorage.setItem('qwr_lu',  t.toString()); }
+function getWrongCount()   { return parseInt(sessionStorage.getItem('qwr_wc')  || '0'); }
+function setWrongCount(n)  { sessionStorage.setItem('qwr_wc',  n.toString()); }
+
+// Attempt to decrypt. Enforces lockout. Returns WIF on success.
+async function verifyPinAndDecrypt(pin) {
   const now = Date.now();
-  if (now < lockoutUntil) {
-    const s = Math.ceil((lockoutUntil - now) / 1000);
+  const lockUntil = getLockoutUntil();
+  if (now < lockUntil) {
+    const s = Math.ceil((lockUntil - now) / 1000);
     throw new Error(`Too many attempts. Try again in ${s}s`);
   }
-  const correct = sha256hex(pin) === LS.pinHash;
-  if (correct) {
-    wrongAttempts = 0;
-    return true;
+  try {
+    const wif = await decryptWIF(pin);
+    setWrongCount(0);
+    return wif;
+  } catch (e) {
+    const attempts = getWrongCount() + 1;
+    if (attempts >= 3) {
+      setLockoutUntil(Date.now() + 30000);
+      setWrongCount(0);
+      throw new Error('Too many attempts. Locked for 30 seconds.');
+    }
+    setWrongCount(attempts);
+    const left = 3 - attempts;
+    throw new Error(`Wrong PIN. ${left} attempt${left !== 1 ? 's' : ''} remaining.`);
   }
-  wrongAttempts++;
-  if (wrongAttempts >= 3) {
-    lockoutUntil  = now + 30000;
-    wrongAttempts = 0;
-    throw new Error('Too many attempts. Locked for 30 seconds.');
-  }
-  const left = 3 - wrongAttempts;
-  throw new Error(`Wrong PIN. ${left} attempt${left !== 1 ? 's' : ''} remaining.`);
 }
 
 // ════════════════════════════════════════════════════════════
@@ -1103,7 +1134,6 @@ function pinVerify(pin) {
 // ════════════════════════════════════════════════════════════
 let currentScreen = 'screen-welcome';
 let screenStack   = [];
-let pendingAction = null; // callback after PIN verify
 
 function showScreen(id, push = true) {
   if (push && currentScreen) screenStack.push(currentScreen);
@@ -1210,15 +1240,19 @@ function updateDots(prefix, count) {
 // ════════════════════════════════════════════════════════════
 // APP STATE
 // ════════════════════════════════════════════════════════════
-let currentBalance = 0; // satoshis
-let pendingTx = null;   // {utxos, toAddr, amount, rawtx}
+let currentBalance = 0;     // satoshis
+let pendingTx      = null;  // {utxos, toAddr, amtSat}  — unsigned
+let pendingAction  = null;  // callback(wif) invoked after PIN verify
+let pendingWIF     = null;  // WIF awaiting PIN encryption (create/import flow)
 
 // ════════════════════════════════════════════════════════════
 // SCREEN: WELCOME
 // ════════════════════════════════════════════════════════════
 document.getElementById('btn-create').addEventListener('click', () => {
+  // Generate key first, store in memory only — encrypt after PIN is set
   const wallet = generateWallet();
-  LS.save(wallet);
+  pendingWIF = wallet.wif;
+  LS.saveAddress(wallet.address);
   showScreen('screen-pin-setup');
 });
 
@@ -1227,37 +1261,54 @@ document.getElementById('btn-go-import').addEventListener('click', () => {
 });
 
 // ════════════════════════════════════════════════════════════
-// SCREEN: PIN SETUP
+// SCREEN: PIN SETUP  (used for both create and import flows)
 // ════════════════════════════════════════════════════════════
 const pinSetupInput   = document.getElementById('pin-setup-input');
 const pinSetupConfirm = document.getElementById('pin-setup-confirm');
 const pinSetupErr     = document.getElementById('pin-setup-err');
 
-document.getElementById('pin-setup-focus-btn').addEventListener('click', () => {
-  pinSetupInput.style.position = 'fixed';
-  pinSetupInput.style.opacity  = '0';
-  pinSetupInput.style.width    = '1px';
-  pinSetupInput.style.height   = '1px';
-  pinSetupInput.focus();
-});
+function focusPinInput(inputEl) {
+  inputEl.style.cssText = 'position:fixed;opacity:0;width:1px;height:1px;';
+  inputEl.focus();
+}
+
+document.getElementById('pin-setup-focus-btn')
+  .addEventListener('click', () => focusPinInput(pinSetupInput));
 
 pinSetupInput.addEventListener('input', () => {
   const val = pinSetupInput.value.replace(/\D/g, '').slice(0, 6);
   pinSetupInput.value = val;
   updateDots('sd-', val.length);
   pinSetupConfirm.disabled = val.length < 6;
-  pinSetupErr.textContent = '';
+  pinSetupErr.textContent  = '';
 });
 
-pinSetupConfirm.addEventListener('click', () => {
+pinSetupConfirm.addEventListener('click', async () => {
   const pin = pinSetupInput.value.replace(/\D/g, '');
   if (pin.length !== 6) { pinSetupErr.textContent = 'Enter 6 digits'; return; }
-  pinSetup(pin);
-  pinSetupInput.value = '';
-  updateDots('sd-', 0);
+  if (!pendingWIF) { pinSetupErr.textContent = 'No wallet to encrypt'; return; }
+
   pinSetupConfirm.disabled = true;
-  showScreen('screen-home', false);
-  initHome();
+  loading(true, 'Securing wallet…');
+  try {
+    const enc = await encryptWIF(pendingWIF, pin);
+    LS.saveEncKey(enc);
+    // Remove any legacy plaintext key
+    localStorage.removeItem('qwr_wif');
+    localStorage.removeItem('qwr_pin_hash');
+    pendingWIF = null;
+    setWrongCount(0); setLockoutUntil(0);
+    loading(false);
+    pinSetupInput.value = '';
+    updateDots('sd-', 0);
+    pinSetupConfirm.disabled = true;
+    showScreen('screen-home', false);
+    initHome();
+  } catch (e) {
+    loading(false);
+    pinSetupErr.textContent = 'Encryption failed: ' + e.message;
+    pinSetupConfirm.disabled = false;
+  }
 });
 
 // ════════════════════════════════════════════════════════════
@@ -1266,8 +1317,8 @@ pinSetupConfirm.addEventListener('click', () => {
 async function initHome() {
   const addr = LS.address;
   if (!addr) { showScreen('screen-welcome', false); return; }
-  document.getElementById('home-addr').textContent = truncateAddr(addr);
-  document.getElementById('home-balance').innerHTML = '—<span>QWR</span>';
+  document.getElementById('home-addr').textContent    = truncateAddr(addr);
+  document.getElementById('home-balance').innerHTML   = '—<span>QWR</span>';
   refreshBalance();
 }
 
@@ -1280,7 +1331,7 @@ async function refreshBalance() {
     currentBalance = satoshis;
     document.getElementById('home-balance').innerHTML =
       `${formatQWR(satoshis)}<span>QWR</span>`;
-  } catch (e) {
+  } catch {
     document.getElementById('home-balance').innerHTML = '?<span>QWR</span>';
   } finally {
     btn.classList.remove('spinning');
@@ -1295,9 +1346,9 @@ document.getElementById('home-addr').addEventListener('click', () => {
 document.getElementById('btn-send').addEventListener('click', () => {
   document.getElementById('send-available').textContent =
     formatQWR(currentBalance) + ' QWR';
-  document.getElementById('send-err').textContent = '';
-  document.getElementById('send-to').value    = '';
-  document.getElementById('send-amount').value = '';
+  document.getElementById('send-err').textContent  = '';
+  document.getElementById('send-to').value         = '';
+  document.getElementById('send-amount').value     = '';
   showScreen('screen-send');
 });
 
@@ -1309,7 +1360,7 @@ document.getElementById('btn-receive').addEventListener('click', () => {
 });
 
 document.getElementById('btn-history').addEventListener('click', () => {
-  pendingAction = loadHistory;
+  pendingAction = () => loadHistory();
   showScreen('screen-pin-verify');
 });
 
@@ -1332,7 +1383,6 @@ document.getElementById('send-back').addEventListener('click', goBack);
 
 document.getElementById('btn-scan').addEventListener('click', () => {
   startScanner(decoded => {
-    // strip "qweercoin:" prefix if present
     const addr = decoded.replace(/^[a-z]+:/i, '').trim();
     document.getElementById('send-to').value = addr;
   });
@@ -1346,9 +1396,14 @@ document.getElementById('btn-preview').addEventListener('click', async () => {
   const errEl  = document.getElementById('send-err');
   errEl.textContent = '';
 
-  if (!toAddr || !toAddr.startsWith('Q')) {
+  // Validate address with full base58check
+  try {
+    const dec = b58cDecode(toAddr);
+    if (dec[0] !== P2PKH_VERSION) throw new Error('Wrong address type');
+  } catch {
     errEl.textContent = 'Enter a valid Q… address'; return;
   }
+
   const amtFloat = parseFloat(amtStr);
   if (!amtFloat || amtFloat <= 0) {
     errEl.textContent = 'Enter a valid amount'; return;
@@ -1366,21 +1421,14 @@ document.getElementById('btn-preview').addEventListener('click', async () => {
       return;
     }
 
-    // Build & sign now (before confirm screen)
-    const wif    = LS.wif;
-    const wallet = importWIF(wif);
-    const rawtx  = buildSignedTx(selected, toAddr, amtSat,
-                                 LS.address, wallet.privkey, wallet.pubkey);
-
-    const total_fee = Number(FEE_SAT);
-    pendingTx = { toAddr, amtSat, rawtx };
+    // Store unsigned tx data — key will be decrypted after PIN
+    pendingTx = { utxos: selected, toAddr, amtSat };
 
     document.getElementById('confirm-to').textContent     = toAddr;
     document.getElementById('confirm-amount').textContent = formatQWR(amtSat) + ' QWR';
     document.getElementById('confirm-total').textContent  =
-      formatQWR(amtSat + total_fee) + ' QWR';
+      formatQWR(amtSat + Number(FEE_SAT)) + ' QWR';
     document.getElementById('confirm-err').textContent    = '';
-
     loading(false);
     showScreen('screen-confirm');
   } catch (e) {
@@ -1390,29 +1438,34 @@ document.getElementById('btn-preview').addEventListener('click', async () => {
 });
 
 // ════════════════════════════════════════════════════════════
-// SCREEN: CONFIRM
+// SCREEN: CONFIRM  — PIN required here to decrypt + sign
 // ════════════════════════════════════════════════════════════
 document.getElementById('confirm-back').addEventListener('click', goBack);
 
-document.getElementById('btn-confirm-send').addEventListener('click', async () => {
-  const errEl = document.getElementById('confirm-err');
-  errEl.textContent = '';
+document.getElementById('btn-confirm-send').addEventListener('click', () => {
   if (!pendingTx) return;
-
-  loading(true, 'Broadcasting…');
-  try {
-    const { txid } = await broadcast(pendingTx.rawtx);
-    loading(false);
-    pendingTx = null;
-    toast('✓ Sent! txid: ' + txid.slice(0, 12) + '…', 4000);
-    // Return to home and refresh
-    screenStack = [];
-    showScreen('screen-home', false);
-    setTimeout(refreshBalance, 2000);
-  } catch (e) {
-    loading(false);
-    errEl.textContent = 'Broadcast failed: ' + e.message;
-  }
+  // Require PIN to decrypt key and sign
+  pendingAction = async (wif) => {
+    const errEl = document.getElementById('confirm-err');
+    loading(true, 'Signing & broadcasting…');
+    try {
+      const wallet = importWIF(wif);
+      const rawtx  = buildSignedTx(
+        pendingTx.utxos, pendingTx.toAddr, pendingTx.amtSat,
+        LS.address, wallet.privkey, wallet.pubkey);
+      const { txid } = await broadcast(rawtx);
+      pendingTx = null;
+      loading(false);
+      toast('✓ Sent! txid: ' + txid.slice(0, 12) + '…', 4000);
+      screenStack = [];
+      showScreen('screen-home', false);
+      setTimeout(refreshBalance, 2000);
+    } catch (e) {
+      loading(false);
+      errEl.textContent = 'Failed: ' + e.message;
+    }
+  };
+  showScreen('screen-pin-verify');
 });
 
 // ════════════════════════════════════════════════════════════
@@ -1452,10 +1505,11 @@ async function loadHistory() {
 document.getElementById('settings-back').addEventListener('click', goBack);
 
 document.getElementById('btn-backup').addEventListener('click', () => {
-  const wif = LS.wif;
-  if (!wif) { toast('No wallet found'); return; }
-  document.getElementById('backup-wif').textContent = wif;
-  showScreen('screen-backup');
+  pendingAction = (wif) => {
+    document.getElementById('backup-wif').textContent = wif;
+    showScreen('screen-backup');
+  };
+  showScreen('screen-pin-verify');
 });
 
 document.getElementById('btn-go-import2').addEventListener('click', () => {
@@ -1465,6 +1519,7 @@ document.getElementById('btn-go-import2').addEventListener('click', () => {
 document.getElementById('btn-clear').addEventListener('click', () => {
   if (!confirm('Clear wallet from this device? Make sure you have backed up your WIF key.')) return;
   LS.clear();
+  pendingTx = null; pendingWIF = null; pendingAction = null;
   screenStack = [];
   showScreen('screen-welcome', false);
 });
@@ -1480,16 +1535,10 @@ document.getElementById('btn-do-import').addEventListener('click', () => {
   errEl.textContent = '';
   try {
     const wallet = importWIF(wifStr);
-    LS.save(wallet);
+    pendingWIF   = wallet.wif;
+    LS.saveAddress(wallet.address);
     document.getElementById('import-wif').value = '';
-    // If no PIN set, go to PIN setup; otherwise go to home
-    if (!LS.pinHash) {
-      showScreen('screen-pin-setup', false);
-    } else {
-      screenStack = [];
-      showScreen('screen-home', false);
-      initHome();
-    }
+    showScreen('screen-pin-setup', false);
   } catch (e) {
     errEl.textContent = 'Invalid WIF: ' + e.message;
   }
@@ -1498,77 +1547,103 @@ document.getElementById('btn-do-import').addEventListener('click', () => {
 // ════════════════════════════════════════════════════════════
 // SCREEN: BACKUP
 // ════════════════════════════════════════════════════════════
-document.getElementById('backup-back').addEventListener('click', goBack);
+document.getElementById('backup-back').addEventListener('click', () => {
+  // Clear the displayed WIF from the DOM immediately on leaving
+  document.getElementById('backup-wif').textContent = '';
+  goBack();
+});
 document.getElementById('btn-copy-wif').addEventListener('click', () => {
-  const wif = LS.wif;
+  const wif = document.getElementById('backup-wif').textContent;
   if (wif) copyText(wif);
 });
 
 // ════════════════════════════════════════════════════════════
-// SCREEN: PIN VERIFY
+// SCREEN: PIN VERIFY  (decrypts key then calls pendingAction(wif))
 // ════════════════════════════════════════════════════════════
 const pinVerifyInput   = document.getElementById('pin-verify-input');
 const pinVerifyConfirm = document.getElementById('pin-verify-confirm');
 const pinVerifyErr     = document.getElementById('pin-verify-err');
 
 document.getElementById('verify-back').addEventListener('click', () => {
-  pinVerifyInput.value = '';
+  pinVerifyInput.value      = '';
   updateDots('vd-', 0);
   pinVerifyConfirm.disabled = true;
-  pendingAction = null;
+  pinVerifyErr.textContent  = '';
+  pendingAction             = null;
   goBack();
 });
 
-document.getElementById('pin-verify-focus-btn').addEventListener('click', () => {
-  pinVerifyInput.style.position = 'fixed';
-  pinVerifyInput.style.opacity  = '0';
-  pinVerifyInput.style.width    = '1px';
-  pinVerifyInput.style.height   = '1px';
-  pinVerifyInput.focus();
-});
+document.getElementById('pin-verify-focus-btn')
+  .addEventListener('click', () => focusPinInput(pinVerifyInput));
 
 pinVerifyInput.addEventListener('input', () => {
   const val = pinVerifyInput.value.replace(/\D/g, '').slice(0, 6);
-  pinVerifyInput.value = val;
+  pinVerifyInput.value      = val;
   updateDots('vd-', val.length);
   pinVerifyConfirm.disabled = val.length < 6;
   pinVerifyErr.textContent  = '';
 });
 
-pinVerifyConfirm.addEventListener('click', () => {
+pinVerifyConfirm.addEventListener('click', async () => {
   const pin = pinVerifyInput.value.replace(/\D/g, '');
   if (pin.length !== 6) return;
+
+  pinVerifyConfirm.disabled = true;
+  loading(true, 'Decrypting…');
   try {
-    pinVerify(pin);
-    pinVerifyInput.value = '';
+    const wif = await verifyPinAndDecrypt(pin);
+    loading(false);
+    pinVerifyInput.value      = '';
     updateDots('vd-', 0);
-    pinVerifyConfirm.disabled = true;
     pinVerifyErr.textContent  = '';
-    if (pendingAction) {
-      const fn = pendingAction;
-      pendingAction = null;
-      fn();
-    }
+    const fn = pendingAction;
+    pendingAction = null;
+    goBack();
+    if (fn) await fn(wif);
   } catch (e) {
-    pinVerifyInput.value = '';
+    loading(false);
+    pinVerifyInput.value      = '';
     updateDots('vd-', 0);
-    pinVerifyConfirm.disabled = true;
+    pinVerifyConfirm.disabled = false;
     pinVerifyErr.textContent  = e.message;
   }
 });
 
 // ════════════════════════════════════════════════════════════
+// MIGRATION: v1 plaintext wallet → encrypted
+// ════════════════════════════════════════════════════════════
+function checkMigration() {
+  const legacyWif = LS.legacyWif;
+  if (!legacyWif) return false;
+  // Old wallet detected — route through import/PIN setup to re-encrypt
+  try {
+    const wallet = importWIF(legacyWif);
+    pendingWIF   = wallet.wif;
+    LS.saveAddress(wallet.address);
+    // Clear plaintext immediately
+    localStorage.removeItem('qwr_wif');
+    localStorage.removeItem('qwr_pin_hash');
+    toast('Upgrading wallet security — please set a PIN', 4000);
+    showScreen('screen-pin-setup', false);
+    return true;
+  } catch {
+    LS.clear();
+    return false;
+  }
+}
+
+// ════════════════════════════════════════════════════════════
 // APP INIT
 // ════════════════════════════════════════════════════════════
 function init() {
-  // Register service worker
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('/wallet/sw.js', { scope: '/wallet/' })
-      .catch(e => console.warn('SW registration failed:', e));
+      .catch(e => console.warn('SW:', e));
   }
 
-  // Route to correct starting screen
-  if (LS.address) {
+  if (checkMigration()) return;   // handles routing internally
+
+  if (LS.hasWallet) {
     showScreen('screen-home', false);
     initHome();
   } else {
