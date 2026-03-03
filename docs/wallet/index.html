@@ -1238,18 +1238,22 @@ function loading(show, msg = 'Loading…') {
   document.getElementById('loading-msg').textContent = msg;
 }
 
-function copyText(text, msg = 'Copied!') {
-  navigator.clipboard.writeText(text)
-    .then(() => toast(msg))
-    .catch(() => {
-      // Fallback
+function copyText(text) {
+  const fallback = () => {
+    try {
       const el = document.createElement('textarea');
       el.value = text; el.style.position = 'fixed'; el.style.opacity = '0';
       document.body.appendChild(el); el.select();
       document.execCommand('copy');
       document.body.removeChild(el);
-      toast(msg);
-    });
+    } catch (_) {}
+    toast('Copied!');
+  };
+  try {
+    navigator.clipboard.writeText(text).then(() => toast('Copied!')).catch(fallback);
+  } catch (_) {
+    fallback();
+  }
 }
 
 function formatQWR(satoshis) {
@@ -1451,7 +1455,7 @@ document.getElementById('btn-settings').addEventListener('click', () => {
 // ════════════════════════════════════════════════════════════
 document.getElementById('receive-back').addEventListener('click', goBack);
 document.getElementById('btn-copy-addr').addEventListener('click', () => {
-  if (LS.address) copyText(LS.address, 'Address copied to clipboard');
+  if (LS.address) copyText(LS.address);
 });
 
 // ════════════════════════════════════════════════════════════
