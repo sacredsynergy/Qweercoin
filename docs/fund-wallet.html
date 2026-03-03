@@ -204,20 +204,6 @@
       font-size: 0.92rem;
       line-height: 1.65;
     }
-    h3 {
-      color: rgba(255,240,160,0.95);
-      font-size: 1rem;
-      font-weight: 900;
-      margin: 1.2rem 0 0.5rem;
-    }
-    .method-divider {
-      text-align: center;
-      color: rgba(255,215,0,0.4);
-      font-size: 0.85rem;
-      font-weight: 700;
-      letter-spacing: 0.1em;
-      margin: 1.4rem 0;
-    }
   </style>
 </head>
 <body>
@@ -227,34 +213,35 @@
   <a class="os-btn" href="#mac">macOS</a>
   <a class="os-btn" href="#windows">Windows</a>
   <a class="os-btn" href="#linux">Linux</a>
+  <a class="os-btn" href="#after">After Sending</a>
 </nav>
 
 <div class="page">
   <a class="back" href="/">← Back to Qweercoin</a>
 
   <h1>Fund Your Wallet</h1>
-  <p class="subtitle">How to send QWR from your desktop wallet to your phone wallet</p>
+  <p class="subtitle">How to send QWR from your desktop to your phone wallet</p>
 
-  <!-- ── Step 1: Get address ── -->
+  <div class="card intro">
+    <p>Sending QWR to your phone wallet is done from the <strong>command line</strong> on your desktop computer. It takes about 60 seconds. Pick your operating system below for the exact commands to paste.</p>
+  </div>
+
+  <!-- ── Step 1 ── -->
   <div id="step1" class="os-section">
     <div class="os-header">
       <span class="icon">📱</span>
       <h2>Step 1 — Get Your Phone Wallet Address</h2>
     </div>
 
-    <div class="card intro">
-      <p>Before you can send QWR to your phone, you need your phone wallet's <strong>Q address</strong>. Do this on your phone:</p>
-      <ol>
-        <li>Open the <strong>QWR Wallet</strong> on your phone (tap <em>Use Wallet</em> on the homepage or open the installed app)</li>
-        <li>Tap the <strong>Receive</strong> button on the home screen</li>
-        <li>Your Q address is displayed — it starts with the letter <strong>Q</strong></li>
-        <li>Tap <strong>Copy Address</strong> to copy it to your clipboard</li>
-      </ol>
-      <div class="note">Your address looks something like: <code>QQx1wN5LVfGXmotsC8Tvgo8sQ582VYswcd</code></div>
-    </div>
-
     <div class="card">
-      <p>Now go to your desktop computer and follow the instructions for your operating system below.</p>
+      <p>Before you send anything, you need your phone wallet's <strong>Q address</strong>. Do this on your phone:</p>
+      <ol>
+        <li>Open the QWR Wallet on your phone</li>
+        <li>Tap the <strong>Receive</strong> button on the home screen</li>
+        <li>Tap <strong>Copy Address</strong> — your address is now on your clipboard</li>
+      </ol>
+      <div class="note">Your address starts with the letter <strong>Q</strong> and looks like: <code>QQx1wN5LVfGXmotsC8Tvgo8sQ582VYswcd</code></div>
+      <p style="margin-top:0.8rem">Now go to your desktop and follow the steps for your operating system below.</p>
     </div>
   </div>
 
@@ -265,43 +252,22 @@
       <h2>macOS</h2>
     </div>
 
-    <h3>Method A — Using the Desktop Wallet App (Qweercoin-Qt)</h3>
-    <div class="card">
-      <div class="step-title"><span class="num">1</span> Open Qweercoin-Qt</div>
-      <p>Launch the <strong>Qweercoin-Qt</strong> application from your Applications folder. Wait for it to fully sync (the progress bar at the bottom should reach 100%).</p>
-
-      <div class="step-title"><span class="num">2</span> Go to the Send tab</div>
-      <p>Click the <strong>Send</strong> tab at the top of the wallet window.</p>
-
-      <div class="step-title"><span class="num">3</span> Fill in the details</div>
-      <ol>
-        <li>In the <strong>Pay To</strong> field, paste your phone wallet's Q address</li>
-        <li>In the <strong>Amount</strong> field, enter how much QWR you want to send</li>
-      </ol>
-
-      <div class="step-title"><span class="num">4</span> Send</div>
-      <p>Click <strong>Send</strong>, confirm the details in the popup, and click <strong>Yes</strong>. The transaction will be broadcast to the network.</p>
-    </div>
-
-    <div class="method-divider">— OR —</div>
-
-    <h3>Method B — Using the Command Line (qweercoin-cli)</h3>
     <div class="card">
       <div class="step-title"><span class="num">1</span> Open Terminal</div>
-      <p>Press <code class="inline">Cmd + Space</code>, type <code class="inline">Terminal</code>, and press Enter.</p>
+      <p>Press <code class="inline">Cmd + Space</code>, type <code class="inline">Terminal</code>, and press Enter to open it.</p>
 
       <div class="step-title"><span class="num">2</span> Check your balance</div>
+      <p>Paste this command and press Enter:</p>
       <span class="copy-hint">PASTE INTO TERMINAL</span>
       <pre>qweercoin-cli -datadir="$HOME/Library/Application Support/Qweercoin" getbalance</pre>
-      <p>This will show your total spendable QWR balance.</p>
+      <p>It will print a number — your spendable QWR balance.</p>
 
-      <div class="step-title"><span class="num">3</span> Send QWR to your phone wallet</div>
-      <p>Replace <code class="inline">YOUR_Q_ADDRESS</code> with your phone wallet address and <code class="inline">AMOUNT</code> with how much you want to send (e.g. <code class="inline">10</code> for 10 QWR):</p>
-      <span class="copy-hint">PASTE INTO TERMINAL — REPLACE VALUES FIRST</span>
+      <div class="step-title"><span class="num">3</span> Send to your phone wallet</div>
+      <p>Paste the command below, but first replace <code class="inline">YOUR_Q_ADDRESS</code> with your phone wallet address and <code class="inline">AMOUNT</code> with how much QWR you want to send (e.g. <code class="inline">10</code> for 10 QWR):</p>
+      <span class="copy-hint">PASTE INTO TERMINAL — REPLACE THE TWO PLACEHOLDERS FIRST</span>
       <pre>qweercoin-cli -datadir="$HOME/Library/Application Support/Qweercoin" sendtoaddress "YOUR_Q_ADDRESS" AMOUNT</pre>
-      <p>If successful, it will print a <strong>transaction ID</strong> — a long string of letters and numbers. That means your send is on its way.</p>
-
-      <div class="note">Example: <code>qweercoin-cli -datadir="$HOME/Library/Application Support/Qweercoin" sendtoaddress "QQx1wN5LVfGXmotsC8Tvgo8sQ582VYswcd" 10</code></div>
+      <p>If it works, it prints a long string of letters and numbers — that is your <strong>transaction ID</strong>, confirming your send is on its way.</p>
+      <div class="note">Full example:<br/><code>qweercoin-cli -datadir="$HOME/Library/Application Support/Qweercoin" sendtoaddress "QQx1wN5LVfGXmotsC8Tvgo8sQ582VYswcd" 10</code></div>
     </div>
   </div>
 
@@ -312,45 +278,23 @@
       <h2>Windows</h2>
     </div>
 
-    <h3>Method A — Using the Desktop Wallet App (Qweercoin-Qt)</h3>
-    <div class="card">
-      <div class="step-title"><span class="num">1</span> Open Qweercoin-Qt</div>
-      <p>Launch <strong>Qweercoin-Qt</strong> from your Start Menu or Desktop shortcut. Wait for it to fully sync (the progress bar at the bottom should reach 100%).</p>
-
-      <div class="step-title"><span class="num">2</span> Go to the Send tab</div>
-      <p>Click the <strong>Send</strong> tab at the top of the wallet window.</p>
-
-      <div class="step-title"><span class="num">3</span> Fill in the details</div>
-      <ol>
-        <li>In the <strong>Pay To</strong> field, paste your phone wallet's Q address</li>
-        <li>In the <strong>Amount</strong> field, enter how much QWR you want to send</li>
-      </ol>
-
-      <div class="step-title"><span class="num">4</span> Send</div>
-      <p>Click <strong>Send</strong>, confirm the details in the popup, and click <strong>Yes</strong>. The transaction will be broadcast to the network.</p>
-    </div>
-
-    <div class="method-divider">— OR —</div>
-
-    <h3>Method B — Using the Command Line (qweercoin-cli)</h3>
     <div class="card">
       <div class="step-title"><span class="num">1</span> Open Command Prompt</div>
-      <p>Press <code class="inline">Windows Key + R</code>, type <code class="inline">cmd</code>, and press Enter.</p>
+      <p>Press <code class="inline">Windows Key + R</code>, type <code class="inline">cmd</code>, and press Enter to open the Command Prompt.</p>
 
       <div class="step-title"><span class="num">2</span> Check your balance</div>
+      <p>Paste this command and press Enter:</p>
       <span class="copy-hint">PASTE INTO COMMAND PROMPT</span>
       <pre>qweercoin-cli.exe -datadir="%APPDATA%\Qweercoin" getbalance</pre>
-      <p>This will show your total spendable QWR balance.</p>
+      <p>It will print a number — your spendable QWR balance.</p>
 
-      <div class="step-title"><span class="num">3</span> Send QWR to your phone wallet</div>
-      <p>Replace <code class="inline">YOUR_Q_ADDRESS</code> with your phone wallet address and <code class="inline">AMOUNT</code> with how much you want to send:</p>
-      <span class="copy-hint">PASTE INTO COMMAND PROMPT — REPLACE VALUES FIRST</span>
+      <div class="step-title"><span class="num">3</span> Send to your phone wallet</div>
+      <p>Paste the command below, replacing <code class="inline">YOUR_Q_ADDRESS</code> with your phone wallet address and <code class="inline">AMOUNT</code> with how much QWR you want to send:</p>
+      <span class="copy-hint">PASTE INTO COMMAND PROMPT — REPLACE THE TWO PLACEHOLDERS FIRST</span>
       <pre>qweercoin-cli.exe -datadir="%APPDATA%\Qweercoin" sendtoaddress "YOUR_Q_ADDRESS" AMOUNT</pre>
-      <p>If successful, it will print a <strong>transaction ID</strong>. That means your send is on its way.</p>
-
-      <div class="note">Example: <code>qweercoin-cli.exe -datadir="%APPDATA%\Qweercoin" sendtoaddress "QQx1wN5LVfGXmotsC8Tvgo8sQ582VYswcd" 10</code></div>
-
-      <div class="warning">If Windows says <em>"qweercoin-cli.exe is not recognized"</em>, you need to either navigate to the folder where you installed Qweercoin first using <code class="inline">cd "C:\Program Files\Qweercoin"</code>, or add it to your system PATH.</div>
+      <p>If it works, it prints a long string of letters and numbers — that is your <strong>transaction ID</strong>, confirming your send is on its way.</p>
+      <div class="note">Full example:<br/><code>qweercoin-cli.exe -datadir="%APPDATA%\Qweercoin" sendtoaddress "QQx1wN5LVfGXmotsC8Tvgo8sQ582VYswcd" 10</code></div>
+      <div class="warning">If Windows says <em>"qweercoin-cli.exe is not recognized"</em>, navigate to your Qweercoin install folder first:<br/><code>cd "C:\Program Files\Qweercoin"</code><br/>Then run the command again.</div>
     </div>
   </div>
 
@@ -361,59 +305,38 @@
       <h2>Linux</h2>
     </div>
 
-    <h3>Method A — Using the Desktop Wallet App (Qweercoin-Qt)</h3>
-    <div class="card">
-      <div class="step-title"><span class="num">1</span> Open Qweercoin-Qt</div>
-      <p>Launch <strong>Qweercoin-Qt</strong> from your applications menu. Wait for it to fully sync (the progress bar at the bottom should reach 100%).</p>
-
-      <div class="step-title"><span class="num">2</span> Go to the Send tab</div>
-      <p>Click the <strong>Send</strong> tab at the top of the wallet window.</p>
-
-      <div class="step-title"><span class="num">3</span> Fill in the details</div>
-      <ol>
-        <li>In the <strong>Pay To</strong> field, paste your phone wallet's Q address</li>
-        <li>In the <strong>Amount</strong> field, enter how much QWR you want to send</li>
-      </ol>
-
-      <div class="step-title"><span class="num">4</span> Send</div>
-      <p>Click <strong>Send</strong>, confirm the details in the popup, and click <strong>Yes</strong>. The transaction will be broadcast to the network.</p>
-    </div>
-
-    <div class="method-divider">— OR —</div>
-
-    <h3>Method B — Using the Command Line (qweercoin-cli)</h3>
     <div class="card">
       <div class="step-title"><span class="num">1</span> Open a Terminal</div>
-      <p>Open your terminal application (e.g. GNOME Terminal, Konsole, xterm).</p>
+      <p>Open your terminal application (e.g. GNOME Terminal, Konsole, or xterm).</p>
 
       <div class="step-title"><span class="num">2</span> Check your balance</div>
+      <p>Paste this command and press Enter:</p>
       <span class="copy-hint">PASTE INTO TERMINAL</span>
       <pre>qweercoin-cli -datadir="$HOME/.qweercoin" getbalance</pre>
-      <p>This will show your total spendable QWR balance.</p>
+      <p>It will print a number — your spendable QWR balance.</p>
 
-      <div class="step-title"><span class="num">3</span> Send QWR to your phone wallet</div>
-      <p>Replace <code class="inline">YOUR_Q_ADDRESS</code> with your phone wallet address and <code class="inline">AMOUNT</code> with how much you want to send:</p>
-      <span class="copy-hint">PASTE INTO TERMINAL — REPLACE VALUES FIRST</span>
+      <div class="step-title"><span class="num">3</span> Send to your phone wallet</div>
+      <p>Paste the command below, replacing <code class="inline">YOUR_Q_ADDRESS</code> with your phone wallet address and <code class="inline">AMOUNT</code> with how much QWR you want to send:</p>
+      <span class="copy-hint">PASTE INTO TERMINAL — REPLACE THE TWO PLACEHOLDERS FIRST</span>
       <pre>qweercoin-cli -datadir="$HOME/.qweercoin" sendtoaddress "YOUR_Q_ADDRESS" AMOUNT</pre>
-      <p>If successful, it will print a <strong>transaction ID</strong>. That means your send is on its way.</p>
-
-      <div class="note">Example: <code>qweercoin-cli -datadir="$HOME/.qweercoin" sendtoaddress "QQx1wN5LVfGXmotsC8Tvgo8sQ582VYswcd" 10</code></div>
+      <p>If it works, it prints a long string of letters and numbers — that is your <strong>transaction ID</strong>, confirming your send is on its way.</p>
+      <div class="note">Full example:<br/><code>qweercoin-cli -datadir="$HOME/.qweercoin" sendtoaddress "QQx1wN5LVfGXmotsC8Tvgo8sQ582VYswcd" 10</code></div>
     </div>
   </div>
 
   <!-- ── After sending ── -->
-  <div class="os-section" style="margin-top:1rem">
+  <div id="after" class="os-section">
     <div class="os-header">
       <span class="icon">✅</span>
       <h2>After Sending</h2>
     </div>
     <div class="card intro">
       <ol>
-        <li>Open your phone wallet and tap the <strong>refresh button</strong> (↻) on the home screen</li>
-        <li>Your balance will update once the transaction has been confirmed in a block</li>
-        <li>Confirmations typically take a few minutes depending on mining activity</li>
+        <li>Go back to your phone wallet and tap the <strong>refresh button (↻)</strong> on the home screen</li>
+        <li>Your balance will update once the transaction is confirmed in a block</li>
+        <li>This usually takes a few minutes depending on mining activity</li>
       </ol>
-      <div class="note">Pending transactions (not yet in a block) may show a balance of 0 until confirmed. Just wait a moment and refresh again.</div>
+      <div class="note">If your balance still shows 0 after refreshing, the transaction may still be pending. Wait a minute and try refreshing again.</div>
     </div>
   </div>
 
