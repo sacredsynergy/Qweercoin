@@ -1072,9 +1072,9 @@ async function encryptWIF(wif, pin) {
   const salt = crypto.getRandomValues(new Uint8Array(16));
   const iv   = crypto.getRandomValues(new Uint8Array(12));
   const km   = await crypto.subtle.importKey(
-    'raw', new TextEncoder().encode(pin), 'PBKDF2', false, ['deriveKey']);
+    'raw', new TextEncoder().encode(pin), { name: 'PBKDF2' }, false, ['deriveKey']);
   const key  = await crypto.subtle.deriveKey(
-    { name: 'PBKDF2', salt, iterations: PBKDF2_ITERS, hash: 'SHA-256' },
+    { name: 'PBKDF2', salt, iterations: PBKDF2_ITERS, hash: { name: 'SHA-256' } },
     km, { name: 'AES-GCM', length: 256 }, false, ['encrypt']);
   const ct   = await crypto.subtle.encrypt(
     { name: 'AES-GCM', iv }, key, new TextEncoder().encode(wif));
@@ -1087,9 +1087,9 @@ async function decryptWIF(pin) {
   if (!raw) throw new Error('No wallet found');
   const { ct, salt, iv } = JSON.parse(raw);
   const km  = await crypto.subtle.importKey(
-    'raw', new TextEncoder().encode(pin), 'PBKDF2', false, ['deriveKey']);
+    'raw', new TextEncoder().encode(pin), { name: 'PBKDF2' }, false, ['deriveKey']);
   const key = await crypto.subtle.deriveKey(
-    { name: 'PBKDF2', salt: fromHex(salt), iterations: PBKDF2_ITERS, hash: 'SHA-256' },
+    { name: 'PBKDF2', salt: fromHex(salt), iterations: PBKDF2_ITERS, hash: { name: 'SHA-256' } },
     km, { name: 'AES-GCM', length: 256 }, false, ['decrypt']);
   try {
     const pt = await crypto.subtle.decrypt(
