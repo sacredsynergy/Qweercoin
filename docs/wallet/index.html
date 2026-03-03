@@ -1238,9 +1238,9 @@ function loading(show, msg = 'Loading…') {
   document.getElementById('loading-msg').textContent = msg;
 }
 
-function copyText(text) {
+function copyText(text, msg = 'Copied!') {
   navigator.clipboard.writeText(text)
-    .then(() => toast('Copied!'))
+    .then(() => toast(msg))
     .catch(() => {
       // Fallback
       const el = document.createElement('textarea');
@@ -1248,7 +1248,7 @@ function copyText(text) {
       document.body.appendChild(el); el.select();
       document.execCommand('copy');
       document.body.removeChild(el);
-      toast('Copied!');
+      toast(msg);
     });
 }
 
@@ -1431,9 +1431,9 @@ document.getElementById('btn-send').addEventListener('click', () => {
 });
 
 document.getElementById('btn-receive').addEventListener('click', () => {
-  const addr = LS.address || '';
-  document.getElementById('receive-addr').textContent = addr;
   showScreen('screen-receive');
+  const addr = LS.address || '';
+  try { document.getElementById('receive-addr').textContent = addr; } catch (_) {}
   try { renderQR(addr); } catch (_) {}
 });
 
@@ -1451,7 +1451,7 @@ document.getElementById('btn-settings').addEventListener('click', () => {
 // ════════════════════════════════════════════════════════════
 document.getElementById('receive-back').addEventListener('click', goBack);
 document.getElementById('btn-copy-addr').addEventListener('click', () => {
-  if (LS.address) copyText(LS.address);
+  if (LS.address) copyText(LS.address, 'Address copied to clipboard');
 });
 
 // ════════════════════════════════════════════════════════════
