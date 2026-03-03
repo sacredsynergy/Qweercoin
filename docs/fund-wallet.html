@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fund Your Wallet — Qweercoin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;900&display=swap" rel="stylesheet" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      min-height: 100vh;
+      background: #5599cc url('bg.jpg') center center / cover no-repeat fixed;
+      font-family: 'Nunito', sans-serif;
+    }
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: rgba(10,20,40,0.52);
+      z-index: 0;
+    }
+
+    .os-nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(10,15,30,0.88);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(255,215,0,0.18);
+      display: flex;
+      justify-content: center;
+      gap: 0.6rem;
+      padding: 0.75rem 1rem;
+      flex-wrap: wrap;
+    }
+    .os-btn {
+      padding: 0.5rem 1.4rem;
+      border-radius: 30px;
+      font-family: 'Nunito', sans-serif;
+      font-size: 0.92rem;
+      font-weight: 900;
+      text-decoration: none;
+      letter-spacing: 0.04em;
+      border: 2px solid rgba(255,215,0,0.3);
+      color: rgba(255,240,160,0.7);
+      background: rgba(255,215,0,0.06);
+      transition: all 0.18s;
+      cursor: pointer;
+    }
+    .os-btn:hover, .os-btn.active {
+      background: rgba(255,215,0,0.18);
+      border-color: rgba(255,215,0,0.7);
+      color: #ffd700;
+    }
+
+    .page {
+      position: relative;
+      z-index: 1;
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 2.5rem 1.5rem 6rem;
+    }
+    .back {
+      display: inline-block;
+      margin-bottom: 1.8rem;
+      color: rgba(255,240,160,0.85);
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 0.95rem;
+    }
+    .back:hover { color: #fff; }
+    h1 {
+      font-size: clamp(2rem, 5vw, 3rem);
+      font-weight: 900;
+      background: linear-gradient(to bottom, #fff5c0 0%, #ffd700 40%, #b07800 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 0.4rem;
+    }
+    .subtitle {
+      color: rgba(255,240,160,0.8);
+      font-size: 1.05rem;
+      margin-bottom: 2rem;
+      font-weight: 600;
+    }
+
+    .os-section { scroll-margin-top: 60px; }
+    .os-header {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      margin: 2.5rem 0 1.2rem;
+      padding-bottom: 0.8rem;
+      border-bottom: 2px solid rgba(255,215,0,0.3);
+    }
+    .os-header .icon { font-size: 1.8rem; }
+    .os-header h2 {
+      font-size: 1.5rem;
+      font-weight: 900;
+      background: linear-gradient(to right, #fff5c0, #ffd700);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .card {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,215,0,0.22);
+      border-radius: 16px;
+      padding: 1.6rem 1.8rem;
+      margin-bottom: 1.2rem;
+      backdrop-filter: blur(10px);
+    }
+    .card.intro {
+      border-color: rgba(255,215,0,0.35);
+      background: rgba(255,215,0,0.06);
+    }
+    .step-title {
+      font-size: 1.05rem;
+      font-weight: 900;
+      color: #ffd700;
+      margin-bottom: 0.8rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .step-title .num {
+      background: linear-gradient(to bottom, #ffd700, #c88000);
+      color: #3a1800;
+      border-radius: 50%;
+      width: 1.8rem; height: 1.8rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.85rem;
+      flex-shrink: 0;
+    }
+    p {
+      color: rgba(255,255,255,0.88);
+      line-height: 1.75;
+      margin-bottom: 0.7rem;
+      font-size: 0.97rem;
+    }
+    p:last-child { margin-bottom: 0; }
+    ol, ul {
+      color: rgba(255,255,255,0.88);
+      line-height: 1.75;
+      font-size: 0.97rem;
+      padding-left: 1.4rem;
+      margin-bottom: 0.7rem;
+    }
+    li { margin-bottom: 0.3rem; }
+    code { font-family: 'Courier New', monospace; }
+    pre {
+      background: rgba(0,0,0,0.5);
+      border: 1px solid rgba(255,215,0,0.2);
+      border-radius: 10px;
+      padding: 0.9rem 1.1rem;
+      margin: 0.5rem 0 0.8rem;
+      overflow-x: auto;
+      font-size: 0.87rem;
+      color: #ffe878;
+      line-height: 1.65;
+      font-family: 'Courier New', monospace;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+    .copy-hint {
+      font-size: 0.74rem;
+      color: rgba(255,215,0,0.5);
+      font-family: 'Nunito', sans-serif;
+      display: block;
+      margin-bottom: 0.2rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+    }
+    code.inline {
+      background: rgba(255,215,0,0.15);
+      border-radius: 4px;
+      padding: 0.1em 0.38em;
+      font-size: 0.9em;
+      color: #ffd700;
+      font-family: 'Courier New', monospace;
+    }
+    .note {
+      background: rgba(255,215,0,0.08);
+      border-left: 3px solid #ffd700;
+      border-radius: 0 8px 8px 0;
+      padding: 0.8rem 1rem;
+      margin: 0.8rem 0 0.2rem;
+      color: rgba(255,240,180,0.92);
+      font-size: 0.92rem;
+      line-height: 1.65;
+    }
+    .warning {
+      background: rgba(255,140,0,0.1);
+      border-left: 3px solid #ff9900;
+      border-radius: 0 8px 8px 0;
+      padding: 0.8rem 1rem;
+      margin: 0.8rem 0 0.2rem;
+      color: rgba(255,220,140,0.95);
+      font-size: 0.92rem;
+      line-height: 1.65;
+    }
+    h3 {
+      color: rgba(255,240,160,0.95);
+      font-size: 1rem;
+      font-weight: 900;
+      margin: 1.2rem 0 0.5rem;
+    }
+    .method-divider {
+      text-align: center;
+      color: rgba(255,215,0,0.4);
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      margin: 1.4rem 0;
+    }
+  </style>
+</head>
+<body>
+
+<nav class="os-nav">
+  <a class="os-btn" href="#step1">Step 1: Get Address</a>
+  <a class="os-btn" href="#mac">macOS</a>
+  <a class="os-btn" href="#windows">Windows</a>
+  <a class="os-btn" href="#linux">Linux</a>
+</nav>
+
+<div class="page">
+  <a class="back" href="/">← Back to Qweercoin</a>
+
+  <h1>Fund Your Wallet</h1>
+  <p class="subtitle">How to send QWR from your desktop wallet to your phone wallet</p>
+
+  <!-- ── Step 1: Get address ── -->
+  <div id="step1" class="os-section">
+    <div class="os-header">
+      <span class="icon">📱</span>
+      <h2>Step 1 — Get Your Phone Wallet Address</h2>
+    </div>
+
+    <div class="card intro">
+      <p>Before you can send QWR to your phone, you need your phone wallet's <strong>Q address</strong>. Do this on your phone:</p>
+      <ol>
+        <li>Open the <strong>QWR Wallet</strong> on your phone (tap <em>Use Wallet</em> on the homepage or open the installed app)</li>
+        <li>Tap the <strong>Receive</strong> button on the home screen</li>
+        <li>Your Q address is displayed — it starts with the letter <strong>Q</strong></li>
+        <li>Tap <strong>Copy Address</strong> to copy it to your clipboard</li>
+      </ol>
+      <div class="note">Your address looks something like: <code>QQx1wN5LVfGXmotsC8Tvgo8sQ582VYswcd</code></div>
+    </div>
+
+    <div class="card">
+      <p>Now go to your desktop computer and follow the instructions for your operating system below.</p>
+    </div>
+  </div>
+
+  <!-- ── macOS ── -->
+  <div id="mac" class="os-section">
+    <div class="os-header">
+      <span class="icon"> </span>
+      <h2>macOS</h2>
+    </div>
+
+    <h3>Method A — Using the Desktop Wallet App (Qweercoin-Qt)</h3>
+    <div class="card">
+      <div class="step-title"><span class="num">1</span> Open Qweercoin-Qt</div>
+      <p>Launch the <strong>Qweercoin-Qt</strong> application from your Applications folder. Wait for it to fully sync (the progress bar at the bottom should reach 100%).</p>
+
+      <div class="step-title"><span class="num">2</span> Go to the Send tab</div>
+      <p>Click the <strong>Send</strong> tab at the top of the wallet window.</p>
+
+      <div class="step-title"><span class="num">3</span> Fill in the details</div>
+      <ol>
+        <li>In the <strong>Pay To</strong> field, paste your phone wallet's Q address</li>
+        <li>In the <strong>Amount</strong> field, enter how much QWR you want to send</li>
+      </ol>
+
+      <div class="step-title"><span class="num">4</span> Send</div>
+      <p>Click <strong>Send</strong>, confirm the details in the popup, and click <strong>Yes</strong>. The transaction will be broadcast to the network.</p>
+    </div>
+
+    <div class="method-divider">— OR —</div>
+
+    <h3>Method B — Using the Command Line (qweercoin-cli)</h3>
+    <div class="card">
+      <div class="step-title"><span class="num">1</span> Open Terminal</div>
+      <p>Press <code class="inline">Cmd + Space</code>, type <code class="inline">Terminal</code>, and press Enter.</p>
+
+      <div class="step-title"><span class="num">2</span> Check your balance</div>
+      <span class="copy-hint">PASTE INTO TERMINAL</span>
+      <pre>qweercoin-cli -datadir="$HOME/Library/Application Support/Qweercoin" getbalance</pre>
+      <p>This will show your total spendable QWR balance.</p>
+
+      <div class="step-title"><span class="num">3</span> Send QWR to your phone wallet</div>
+      <p>Replace <code class="inline">YOUR_Q_ADDRESS</code> with your phone wallet address and <code class="inline">AMOUNT</code> with how much you want to send (e.g. <code class="inline">10</code> for 10 QWR):</p>
+      <span class="copy-hint">PASTE INTO TERMINAL — REPLACE VALUES FIRST</span>
+      <pre>qweercoin-cli -datadir="$HOME/Library/Application Support/Qweercoin" sendtoaddress "YOUR_Q_ADDRESS" AMOUNT</pre>
+      <p>If successful, it will print a <strong>transaction ID</strong> — a long string of letters and numbers. That means your send is on its way.</p>
+
+      <div class="note">Example: <code>qweercoin-cli -datadir="$HOME/Library/Application Support/Qweercoin" sendtoaddress "QQx1wN5LVfGXmotsC8Tvgo8sQ582VYswcd" 10</code></div>
+    </div>
+  </div>
+
+  <!-- ── Windows ── -->
+  <div id="windows" class="os-section">
+    <div class="os-header">
+      <span class="icon">🪟</span>
+      <h2>Windows</h2>
+    </div>
+
+    <h3>Method A — Using the Desktop Wallet App (Qweercoin-Qt)</h3>
+    <div class="card">
+      <div class="step-title"><span class="num">1</span> Open Qweercoin-Qt</div>
+      <p>Launch <strong>Qweercoin-Qt</strong> from your Start Menu or Desktop shortcut. Wait for it to fully sync (the progress bar at the bottom should reach 100%).</p>
+
+      <div class="step-title"><span class="num">2</span> Go to the Send tab</div>
+      <p>Click the <strong>Send</strong> tab at the top of the wallet window.</p>
+
+      <div class="step-title"><span class="num">3</span> Fill in the details</div>
+      <ol>
+        <li>In the <strong>Pay To</strong> field, paste your phone wallet's Q address</li>
+        <li>In the <strong>Amount</strong> field, enter how much QWR you want to send</li>
+      </ol>
+
+      <div class="step-title"><span class="num">4</span> Send</div>
+      <p>Click <strong>Send</strong>, confirm the details in the popup, and click <strong>Yes</strong>. The transaction will be broadcast to the network.</p>
+    </div>
+
+    <div class="method-divider">— OR —</div>
+
+    <h3>Method B — Using the Command Line (qweercoin-cli)</h3>
+    <div class="card">
+      <div class="step-title"><span class="num">1</span> Open Command Prompt</div>
+      <p>Press <code class="inline">Windows Key + R</code>, type <code class="inline">cmd</code>, and press Enter.</p>
+
+      <div class="step-title"><span class="num">2</span> Check your balance</div>
+      <span class="copy-hint">PASTE INTO COMMAND PROMPT</span>
+      <pre>qweercoin-cli.exe -datadir="%APPDATA%\Qweercoin" getbalance</pre>
+      <p>This will show your total spendable QWR balance.</p>
+
+      <div class="step-title"><span class="num">3</span> Send QWR to your phone wallet</div>
+      <p>Replace <code class="inline">YOUR_Q_ADDRESS</code> with your phone wallet address and <code class="inline">AMOUNT</code> with how much you want to send:</p>
+      <span class="copy-hint">PASTE INTO COMMAND PROMPT — REPLACE VALUES FIRST</span>
+      <pre>qweercoin-cli.exe -datadir="%APPDATA%\Qweercoin" sendtoaddress "YOUR_Q_ADDRESS" AMOUNT</pre>
+      <p>If successful, it will print a <strong>transaction ID</strong>. That means your send is on its way.</p>
+
+      <div class="note">Example: <code>qweercoin-cli.exe -datadir="%APPDATA%\Qweercoin" sendtoaddress "QQx1wN5LVfGXmotsC8Tvgo8sQ582VYswcd" 10</code></div>
+
+      <div class="warning">If Windows says <em>"qweercoin-cli.exe is not recognized"</em>, you need to either navigate to the folder where you installed Qweercoin first using <code class="inline">cd "C:\Program Files\Qweercoin"</code>, or add it to your system PATH.</div>
+    </div>
+  </div>
+
+  <!-- ── Linux ── -->
+  <div id="linux" class="os-section">
+    <div class="os-header">
+      <span class="icon">🐧</span>
+      <h2>Linux</h2>
+    </div>
+
+    <h3>Method A — Using the Desktop Wallet App (Qweercoin-Qt)</h3>
+    <div class="card">
+      <div class="step-title"><span class="num">1</span> Open Qweercoin-Qt</div>
+      <p>Launch <strong>Qweercoin-Qt</strong> from your applications menu. Wait for it to fully sync (the progress bar at the bottom should reach 100%).</p>
+
+      <div class="step-title"><span class="num">2</span> Go to the Send tab</div>
+      <p>Click the <strong>Send</strong> tab at the top of the wallet window.</p>
+
+      <div class="step-title"><span class="num">3</span> Fill in the details</div>
+      <ol>
+        <li>In the <strong>Pay To</strong> field, paste your phone wallet's Q address</li>
+        <li>In the <strong>Amount</strong> field, enter how much QWR you want to send</li>
+      </ol>
+
+      <div class="step-title"><span class="num">4</span> Send</div>
+      <p>Click <strong>Send</strong>, confirm the details in the popup, and click <strong>Yes</strong>. The transaction will be broadcast to the network.</p>
+    </div>
+
+    <div class="method-divider">— OR —</div>
+
+    <h3>Method B — Using the Command Line (qweercoin-cli)</h3>
+    <div class="card">
+      <div class="step-title"><span class="num">1</span> Open a Terminal</div>
+      <p>Open your terminal application (e.g. GNOME Terminal, Konsole, xterm).</p>
+
+      <div class="step-title"><span class="num">2</span> Check your balance</div>
+      <span class="copy-hint">PASTE INTO TERMINAL</span>
+      <pre>qweercoin-cli -datadir="$HOME/.qweercoin" getbalance</pre>
+      <p>This will show your total spendable QWR balance.</p>
+
+      <div class="step-title"><span class="num">3</span> Send QWR to your phone wallet</div>
+      <p>Replace <code class="inline">YOUR_Q_ADDRESS</code> with your phone wallet address and <code class="inline">AMOUNT</code> with how much you want to send:</p>
+      <span class="copy-hint">PASTE INTO TERMINAL — REPLACE VALUES FIRST</span>
+      <pre>qweercoin-cli -datadir="$HOME/.qweercoin" sendtoaddress "YOUR_Q_ADDRESS" AMOUNT</pre>
+      <p>If successful, it will print a <strong>transaction ID</strong>. That means your send is on its way.</p>
+
+      <div class="note">Example: <code>qweercoin-cli -datadir="$HOME/.qweercoin" sendtoaddress "QQx1wN5LVfGXmotsC8Tvgo8sQ582VYswcd" 10</code></div>
+    </div>
+  </div>
+
+  <!-- ── After sending ── -->
+  <div class="os-section" style="margin-top:1rem">
+    <div class="os-header">
+      <span class="icon">✅</span>
+      <h2>After Sending</h2>
+    </div>
+    <div class="card intro">
+      <ol>
+        <li>Open your phone wallet and tap the <strong>refresh button</strong> (↻) on the home screen</li>
+        <li>Your balance will update once the transaction has been confirmed in a block</li>
+        <li>Confirmations typically take a few minutes depending on mining activity</li>
+      </ol>
+      <div class="note">Pending transactions (not yet in a block) may show a balance of 0 until confirmed. Just wait a moment and refresh again.</div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
