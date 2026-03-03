@@ -1,10 +1,13 @@
-const CACHE = 'qwr-wallet-v1';
+const CACHE = 'qwr-wallet-v2';
 const SHELL = [
   '/wallet/',
   '/wallet/index.html',
   '/wallet/manifest.json',
   '/wallet/icon-192.png',
   '/wallet/icon-512.png',
+  '/wallet/lib/secp256k1.js',
+  '/wallet/lib/sha256.js',
+  '/wallet/lib/ripemd160.js',
 ];
 
 self.addEventListener('install', e => {
