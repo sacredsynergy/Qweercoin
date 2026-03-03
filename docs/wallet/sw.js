@@ -1,4 +1,4 @@
-const CACHE = 'qwr-wallet-v3';
+const CACHE = 'qwr-wallet-v4';
 const SHELL = [
   '/wallet/',
   '/wallet/index.html',
@@ -8,6 +8,7 @@ const SHELL = [
   '/wallet/lib/secp256k1.js',
   '/wallet/lib/sha256.js',
   '/wallet/lib/ripemd160.js',
+  '/wallet/lib/qrcode.min.js',
 ];
 
 self.addEventListener('install', e => {

@@ -246,12 +246,18 @@
     .action-btn .icon { font-size: 1.6rem; }
 
     /* ── QR code ──────────────────────────────────────────── */
-    #qr-canvas {
+    #qr-container {
       border-radius: 12px;
       border: 3px solid var(--gold-dim);
-      max-width: 200px;
+      max-width: 216px;
       background: #fff;
       padding: 8px;
+      line-height: 0;
+    }
+    #qr-container canvas, #qr-container img {
+      display: block;
+      width: 200px;
+      height: 200px;
     }
 
     /* ── Toast ────────────────────────────────────────────── */
@@ -574,7 +580,7 @@
   </div>
   <div class="content" style="align-items:center;gap:1.2rem">
     <p style="text-align:center">Share your address to receive QWR</p>
-    <canvas id="qr-canvas"></canvas>
+    <div id="qr-container"></div>
     <div class="card" style="text-align:center">
       <div class="mono" id="receive-addr">…</div>
     </div>
@@ -764,9 +770,7 @@
 <!-- ═══════════════════════════════════════════════════════
      EXTERNAL SCRIPTS (non-module globals)
 ═══════════════════════════════════════════════════════ -->
-<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"
-        integrity="sha384-Izc791esqyEy3BEIC42q7jbE0AaOkACziN+dyyXgYeDmpeMCLz0xA+xYN3aCd5zz"
-        crossorigin="anonymous"></script>
+<script src="/wallet/lib/qrcode.min.js"></script>
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"
         integrity="sha384-c9d8RFSL+u3exBOJ4Yp3HUJXS4znl9f+z66d1y54ig+ea249SpqR+w1wyvXz/lk+"
         crossorigin="anonymous"></script>
@@ -1270,12 +1274,16 @@ function truncateAddr(addr) {
 // ════════════════════════════════════════════════════════════
 function renderQR(text) {
   if (typeof QRCode === 'undefined') return;
-  const canvas = document.getElementById('qr-canvas');
-  QRCode.toCanvas(canvas, text, {
+  const container = document.getElementById('qr-container');
+  container.innerHTML = '';
+  new QRCode(container, {
+    text,
     width: 200,
-    color: { dark: '#000000', light: '#ffffff' },
-    errorCorrectionLevel: 'M',
-  }).catch(console.error);
+    height: 200,
+    colorDark: '#000000',
+    colorLight: '#ffffff',
+    correctLevel: QRCode.CorrectLevel.M,
+  });
 }
 
 // ════════════════════════════════════════════════════════════
