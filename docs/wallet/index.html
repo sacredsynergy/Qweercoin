@@ -1440,23 +1440,20 @@ pinSetupConfirm.addEventListener('click', async () => {
   try {
     const enc = await encryptWIF(pendingWIF, pin);
     LS.saveEncKey(enc);
-    // Remove any legacy plaintext key
     localStorage.removeItem('qwr_wif');
     localStorage.removeItem('qwr_pin_hash');
+    const wifForBackup = pendingWIF;
     pendingWIF = null;
     setWrongCount(0); setLockoutUntil(0);
     loading(false);
     pinSetupInput.value = '';
     updateDots('sd-', 0);
     pinSetupConfirm.disabled = true;
-    // Prompt backup before going to home for new wallets
-    pendingAction = (wif) => {
-      document.getElementById('backup-wif').textContent = wif;
-      document.getElementById('backup-address').textContent = LS.address || '';
-      document.getElementById('backup-new-notice').style.display = 'block';
-      showScreen('screen-backup', false);
-    };
-    showScreen('screen-pin-verify');
+    // Go straight to backup screen — no need to re-enter PIN just set
+    document.getElementById('backup-wif').textContent = wifForBackup;
+    document.getElementById('backup-address').textContent = LS.address || '';
+    document.getElementById('backup-new-notice').style.display = 'block';
+    showScreen('screen-backup', false);
   } catch (e) {
     loading(false);
     pinSetupErr.textContent = 'Encryption failed: ' + e.message;
