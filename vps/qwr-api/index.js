@@ -39,16 +39,10 @@ app.use((_req, res, next) => {
 });
 
 // ── RPC client ───────────────────────────────────────────────────────
-// Cache cookie in memory; re-read only if stale (5 min TTL)
-let _cookie = null;
-let _cookieTs = 0;
+const RPC_USER = 'qwrnode';
+const RPC_PASS = 'qwrminelocal9332';
 function readCookie() {
-  if (Date.now() - _cookieTs < 300000 && _cookie) return _cookie;
-  const raw = fs.readFileSync(COOKIE_PATH, 'utf8').trim();
-  const colon = raw.indexOf(':');
-  _cookie = { user: raw.slice(0, colon), pass: raw.slice(colon + 1) };
-  _cookieTs = Date.now();
-  return _cookie;
+  return { user: RPC_USER, pass: RPC_PASS };
 }
 
 function rpc(method, params = []) {
