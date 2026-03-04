@@ -688,6 +688,7 @@
   <div class="content" style="gap:0.7rem">
     <button class="settings-item" id="btn-backup">
       <span class="icon">🔑</span>Backup Private Key
+      <span id="backup-warning-badge" style="display:none;margin-left:auto;background:#e05;color:#fff;font-size:0.7rem;font-weight:900;padding:0.15em 0.5em;border-radius:20px">⚠ BACK UP</span>
     </button>
     <button class="settings-item" id="btn-go-import2">
       <span class="icon">📥</span>Import Wallet
@@ -754,16 +755,23 @@
     <span class="topbar-title">Backup Key</span>
   </div>
   <div class="content" style="gap:1rem">
+    <div id="backup-new-notice" style="display:none;background:rgba(255,215,0,0.12);border:1px solid rgba(255,215,0,0.4);border-radius:12px;padding:1rem;font-size:0.9rem;line-height:1.6;color:var(--text)">
+      🎉 <strong style="color:var(--gold)">Wallet created!</strong> Save your private key before you start using your wallet. If you lose it, you lose access to your funds forever.
+    </div>
     <div class="warn-box">
       ⚠️ <strong>NEVER share this key with anyone.</strong><br />
       Anyone who has this key controls your funds.<br />
-      Write it down and keep it safe offline.
+      Write it down and store it somewhere safe offline.
     </div>
     <div class="card">
-      <div class="input-label" style="margin-bottom:0.5rem">WIF Private Key</div>
-      <div class="mono" id="backup-wif" style="color:var(--text);font-size:0.8rem;word-break:break-all"></div>
+      <div class="input-label" style="margin-bottom:0.3rem">Wallet Address</div>
+      <div class="mono" id="backup-address" style="color:var(--gold);font-size:0.78rem;word-break:break-all;margin-bottom:1rem"></div>
+      <div class="input-label" style="margin-bottom:0.3rem">WIF Private Key</div>
+      <div class="mono" id="backup-wif" style="color:var(--text);font-size:0.78rem;word-break:break-all"></div>
     </div>
     <button class="btn btn-outline btn-full" id="btn-copy-wif">📋 Copy WIF Key</button>
+    <button class="btn btn-outline btn-full" id="btn-download-backup">💾 Download Backup File</button>
+    <button class="btn btn-gold btn-full" id="btn-backup-done">✓ I've saved my key — Continue</button>
   </div>
 </div>
 
@@ -1158,10 +1166,12 @@ const LS = {
   get hasWallet(){ return !!(this.address && this.encKey);     },
   // Legacy plaintext WIF from v1 (migration path)
   get legacyWif(){ return localStorage.getItem('qwr_wif');     },
+  get backupDone() { return localStorage.getItem('qwr_backup_done') === '1'; },
   saveAddress(addr) { localStorage.setItem('qwr_address', addr); },
   saveEncKey(enc)   { localStorage.setItem('qwr_enc_key', JSON.stringify(enc)); },
+  setBackupDone()   { localStorage.setItem('qwr_backup_done', '1'); },
   clear() {
-    ['qwr_address','qwr_enc_key','qwr_wif','qwr_pin_hash'].forEach(k => localStorage.removeItem(k));
+    ['qwr_address','qwr_enc_key','qwr_wif','qwr_pin_hash','qwr_backup_done'].forEach(k => localStorage.removeItem(k));
   },
 };
 
@@ -1439,8 +1449,14 @@ pinSetupConfirm.addEventListener('click', async () => {
     pinSetupInput.value = '';
     updateDots('sd-', 0);
     pinSetupConfirm.disabled = true;
-    showScreen('screen-home', false);
-    initHome();
+    // Prompt backup before going to home for new wallets
+    pendingAction = (wif) => {
+      document.getElementById('backup-wif').textContent = wif;
+      document.getElementById('backup-address').textContent = LS.address || '';
+      document.getElementById('backup-new-notice').style.display = 'block';
+      showScreen('screen-backup', false);
+    };
+    showScreen('screen-pin-verify');
   } catch (e) {
     loading(false);
     pinSetupErr.textContent = 'Encryption failed: ' + e.message;
@@ -1502,6 +1518,8 @@ document.getElementById('btn-history').addEventListener('click', () => {
 });
 
 document.getElementById('btn-settings').addEventListener('click', () => {
+  document.getElementById('backup-warning-badge').style.display =
+    LS.backupDone ? 'none' : 'inline-block';
   showScreen('screen-settings');
 });
 
@@ -1644,6 +1662,8 @@ document.getElementById('settings-back').addEventListener('click', goBack);
 document.getElementById('btn-backup').addEventListener('click', () => {
   pendingAction = (wif) => {
     document.getElementById('backup-wif').textContent = wif;
+    document.getElementById('backup-address').textContent = LS.address || '';
+    document.getElementById('backup-new-notice').style.display = 'none';
     showScreen('screen-backup');
   };
   showScreen('screen-pin-verify');
@@ -1684,14 +1704,56 @@ document.getElementById('btn-do-import').addEventListener('click', () => {
 // ════════════════════════════════════════════════════════════
 // SCREEN: BACKUP
 // ════════════════════════════════════════════════════════════
-document.getElementById('backup-back').addEventListener('click', () => {
-  // Clear the displayed WIF from the DOM immediately on leaving
+function clearBackupScreen() {
   document.getElementById('backup-wif').textContent = '';
+  document.getElementById('backup-address').textContent = '';
+  document.getElementById('backup-new-notice').style.display = 'none';
+}
+
+document.getElementById('backup-back').addEventListener('click', () => {
+  clearBackupScreen();
   goBack();
 });
+
 document.getElementById('btn-copy-wif').addEventListener('click', () => {
   const wif = document.getElementById('backup-wif').textContent;
   if (wif) copyText(wif);
+});
+
+document.getElementById('btn-download-backup').addEventListener('click', () => {
+  const wif  = document.getElementById('backup-wif').textContent;
+  const addr = document.getElementById('backup-address').textContent;
+  if (!wif) return;
+  const lines = [
+    'Qweercoin Wallet Backup',
+    '=======================',
+    'Date: ' + new Date().toLocaleString(),
+    '',
+    'Address:        ' + addr,
+    'WIF Private Key: ' + wif,
+    '',
+    'WARNING: Keep this file private and offline.',
+    'Anyone with this key controls your funds.',
+    'Never share it with anyone.',
+  ];
+  const blob = new Blob([lines.join('\n')], { type: 'text/plain' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href = url;
+  a.download = 'qwr-backup-' + addr.slice(0, 8) + '.txt';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  toast('Backup file downloaded!');
+});
+
+document.getElementById('btn-backup-done').addEventListener('click', () => {
+  LS.setBackupDone();
+  document.getElementById('backup-warning-badge').style.display = 'none';
+  clearBackupScreen();
+  showScreen('screen-home', false);
+  initHome();
 });
 
 // ════════════════════════════════════════════════════════════
