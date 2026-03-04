@@ -1034,7 +1034,7 @@ function buildSignedTx(utxos, toAddr, amountSat, changeAddr, privkey, pubkey) {
     const preimage  = serializeForSigning(utxos, outputs, idx, subscript);
     const hashBuf   = sha256d(preimage);
     const sig       = secp.sign(hashBuf, privkey, { lowS: true });
-    const derSig    = new Uint8Array([...sig.toDERRawBytes(), 0x01]); // + SIGHASH_ALL
+    const derSig    = new Uint8Array([...sig.toRawBytes(), 0x01]); // + SIGHASH_ALL
     return concat(pushData(derSig), pushData(pubkey));
   });
 
