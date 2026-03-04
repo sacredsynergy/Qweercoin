@@ -837,6 +837,21 @@ function sha256d(data) {
   return sha256(sha256(data));
 }
 
+// DER-encode an ECDSA signature from its r and s BigInt values
+function sigToDER(sig) {
+  function encInt(n) {
+    let hex = n.toString(16);
+    if (hex.length % 2) hex = '0' + hex;
+    let bytes = fromHex(hex);
+    if (bytes[0] & 0x80) bytes = concatBytes(new Uint8Array([0x00]), bytes);
+    return concatBytes(new Uint8Array([0x02, bytes.length]), bytes);
+  }
+  const rDER = encInt(sig.r);
+  const sDER = encInt(sig.s);
+  const seq  = concatBytes(rDER, sDER);
+  return concatBytes(new Uint8Array([0x30, seq.length]), seq);
+}
+
 // ════════════════════════════════════════════════════════════
 // PURE-JS CRYPTO  (fallback when crypto.subtle is unavailable)
 // Works on iOS Private Browsing and older iOS versions
@@ -1034,7 +1049,7 @@ function buildSignedTx(utxos, toAddr, amountSat, changeAddr, privkey, pubkey) {
     const preimage  = serializeForSigning(utxos, outputs, idx, subscript);
     const hashBuf   = sha256d(preimage);
     const sig       = secp.sign(hashBuf, privkey, { lowS: true });
-    const derSig    = new Uint8Array([...sig.toRawBytes(), 0x01]); // + SIGHASH_ALL
+    const derSig    = new Uint8Array([...sigToDER(sig), 0x01]); // + SIGHASH_ALL
     return concat(pushData(derSig), pushData(pubkey));
   });
 
