@@ -861,6 +861,9 @@ function hmacSha256(key, data) {
   return sha256(concatBytes(opad, sha256(concatBytes(ipad, data))));
 }
 
+// Required by @noble/secp256k1 v2 for synchronous signing
+secp.etc.hmacSha256Sync = (key, ...msgs) => hmacSha256(key, concatBytes(...msgs));
+
 // Single-block PBKDF2-HMAC-SHA256 → 32-byte key
 function pbkdf2Sha256(password, salt, iters) {
   const pwd = typeof password === 'string' ? new TextEncoder().encode(password) : password;
