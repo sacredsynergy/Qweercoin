@@ -25,7 +25,7 @@ app.use('/api/', limiter);
 
 // ── CORS ─────────────────────────────────────────────────────────────
 app.use(cors({
-  origin: 'https://qweercoin.com',
+  origin: ['https://qweercoin.com', 'http://qweercoin.com'],
   methods: ['GET', 'POST'],
 }));
 
