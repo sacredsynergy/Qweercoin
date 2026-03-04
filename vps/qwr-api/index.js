@@ -93,8 +93,8 @@ function rpc(method, params = []) {
 let _scanQueue = Promise.resolve();
 function rpcScan(address) {
   _scanQueue = _scanQueue
-    .then(() => rpc('scantxoutset', ['start', [`addr(${address})`]]))
-    .catch(e => { throw e; });
+    .catch(() => {})  // Reset queue after any failure so it doesn't stay broken
+    .then(() => rpc('scantxoutset', ['start', [`addr(${address})`]]));
   return _scanQueue;
 }
 
