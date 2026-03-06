@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mine QWR — Qweercoin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;900&display=swap" rel="stylesheet" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      min-height: 100vh;
+      background: #5599cc url('../bg.jpg') center center / cover no-repeat fixed;
+      font-family: 'Nunito', sans-serif;
+      color: #fff8d0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem 1rem 5rem;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: rgba(5,15,30,0.72);
+      z-index: 0;
+    }
+
+    .page {
+      position: relative;
+      z-index: 1;
+      max-width: 780px;
+      width: 100%;
+    }
+
+    /* ── Header ── */
+    .site-header {
+      text-align: center;
+      margin-bottom: 2.5rem;
+    }
+
+    .site-header a {
+      text-decoration: none;
+      font-size: 0.9rem;
+      color: rgba(255,220,80,0.7);
+      letter-spacing: 0.08em;
+      font-weight: 700;
+    }
+
+    .site-header a:hover { color: #ffd700; }
+
+    h1 {
+      font-size: clamp(2.2rem, 6vw, 3.5rem);
+      font-weight: 900;
+      letter-spacing: 0.02em;
+      background: linear-gradient(to bottom, #ffffff 0%, #fff5c0 10%, #ffd700 30%, #d4920a 58%, #a06200 78%, #7a4800 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      filter: drop-shadow(0 4px 10px rgba(120,70,0,0.5));
+      margin-bottom: 0.4rem;
+    }
+
+    .subtitle {
+      font-size: 1rem;
+      color: rgba(255,248,208,0.7);
+      font-weight: 600;
+      letter-spacing: 0.06em;
+    }
+
+    /* ── Cards ── */
+    .card {
+      background: rgba(5,15,35,0.82);
+      border: 1px solid rgba(255,215,0,0.25);
+      border-radius: 16px;
+      padding: 1.8rem 2rem;
+      margin-bottom: 1.4rem;
+      box-shadow: 0 4px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,215,0,0.1);
+    }
+
+    .card h2 {
+      font-size: 1.25rem;
+      font-weight: 900;
+      color: #ffd700;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .card h2 .step-num {
+      background: linear-gradient(135deg, #ffd700, #c88000);
+      color: #0a1428;
+      width: 1.8rem;
+      height: 1.8rem;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.9rem;
+      font-weight: 900;
+      flex-shrink: 0;
+    }
+
+    .card p, .card li {
+      font-size: 0.95rem;
+      color: #ddeeff;
+      line-height: 1.7;
+      margin-bottom: 0.5rem;
+    }
+
+    .card ul, .card ol {
+      padding-left: 1.4rem;
+    }
+
+    .card li { margin-bottom: 0.4rem; }
+
+    /* ── Code blocks ── */
+    pre, code {
+      font-family: 'Courier New', monospace;
+      font-size: 0.85rem;
+    }
+
+    pre {
+      background: rgba(0,0,0,0.5);
+      border: 1px solid rgba(255,215,0,0.2);
+      border-radius: 8px;
+      padding: 1rem 1.2rem;
+      margin: 0.8rem 0;
+      overflow-x: auto;
+      color: #a0ffb0;
+      line-height: 1.6;
+    }
+
+    code {
+      background: rgba(255,215,0,0.12);
+      color: #ffd080;
+      padding: 0.15em 0.4em;
+      border-radius: 4px;
+    }
+
+    pre code {
+      background: none;
+      color: inherit;
+      padding: 0;
+    }
+
+    /* ── Info pills ── */
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 0.8rem;
+      margin-top: 0.6rem;
+    }
+
+    .info-pill {
+      background: rgba(255,215,0,0.08);
+      border: 1px solid rgba(255,215,0,0.2);
+      border-radius: 10px;
+      padding: 0.7rem 1rem;
+      text-align: center;
+    }
+
+    .info-pill .label {
+      font-size: 0.7rem;
+      color: rgba(255,248,208,0.5);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 0.25rem;
+    }
+
+    .info-pill .value {
+      font-size: 1rem;
+      font-weight: 900;
+      color: #ffd700;
+    }
+
+    /* ── OS tabs ── */
+    .tabs {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .tab-btn {
+      padding: 0.4rem 1rem;
+      border-radius: 20px;
+      border: 1px solid rgba(255,215,0,0.3);
+      background: transparent;
+      color: rgba(255,248,208,0.6);
+      font-family: 'Nunito', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .tab-btn.active, .tab-btn:hover {
+      background: rgba(255,215,0,0.15);
+      border-color: #ffd700;
+      color: #ffd700;
+    }
+
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* ── Pool notice ── */
+    .pool-notice {
+      background: rgba(255,200,0,0.08);
+      border: 1px solid rgba(255,200,0,0.3);
+      border-radius: 10px;
+      padding: 1rem 1.2rem;
+      text-align: center;
+      color: rgba(255,248,208,0.8);
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-top: 0.6rem;
+    }
+
+    /* ── Back button ── */
+    .back-btn {
+      display: inline-block;
+      padding: 0.7rem 1.8rem;
+      border-radius: 50px;
+      font-family: 'Nunito', sans-serif;
+      font-size: 1rem;
+      font-weight: 900;
+      text-decoration: none;
+      background: linear-gradient(to bottom, #fff5a0 0%, #ffd700 8%, #e8a800 20%, #c88000 35%, #e8a800 50%, #ffd700 65%, #c88000 80%, #a06000 100%);
+      color: #fff5a0;
+      text-shadow: 0 1px 3px rgba(180,100,0,0.6);
+      border: 2px solid #8b5e00;
+      box-shadow: inset 0 3px 2px rgba(255,255,180,0.7), inset 0 -3px 2px rgba(100,55,0,0.5), 0 4px 18px rgba(200,140,0,0.5);
+      transition: transform 0.12s, filter 0.12s;
+      margin-top: 1rem;
+    }
+
+    .back-btn:hover { transform: translateY(-2px); filter: brightness(1.1); }
+
+    footer {
+      margin-top: 3rem;
+      text-align: center;
+      font-size: 0.78rem;
+      color: rgba(255,255,255,0.4);
+      letter-spacing: 0.05em;
+    }
+
+    footer a { color: rgba(255,215,0,0.5); text-decoration: none; }
+    footer a:hover { color: #ffd700; }
+
+    @media (max-width: 500px) {
+      .card { padding: 1.4rem 1.2rem; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="page">
+
+  <header class="site-header">
+    <a href="/">← qweercoin.com</a>
+    <h1>Mine QWR</h1>
+    <p class="subtitle">Proof-of-Work · Scrypt Algorithm · CPU Friendly</p>
+  </header>
+
+  <!-- Network Stats -->
+  <div class="card">
+    <h2>Network Info</h2>
+    <div class="info-grid">
+      <div class="info-pill">
+        <div class="label">Algorithm</div>
+        <div class="value">Scrypt</div>
+      </div>
+      <div class="info-pill">
+        <div class="label">Block Reward</div>
+        <div class="value">69 QWR</div>
+      </div>
+      <div class="info-pill">
+        <div class="label">P2P Port</div>
+        <div class="value">9444</div>
+      </div>
+      <div class="info-pill">
+        <div class="label">RPC Port</div>
+        <div class="value">9332</div>
+      </div>
+      <div class="info-pill">
+        <div class="label">Seed Node</div>
+        <div class="value" style="font-size:0.75rem">66.42.97.210</div>
+      </div>
+      <div class="info-pill">
+        <div class="label">Source Code</div>
+        <div class="value" style="font-size:0.75rem"><a href="https://github.com/sacredsynergy/Qweercoin" target="_blank" style="color:#ffd700">GitHub</a></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 1: Get the node -->
+  <div class="card">
+    <h2><span class="step-num">1</span> Run a QWR Node</h2>
+    <p>You need a running Qweercoin node to mine. Clone and build from source:</p>
+
+    <div class="tabs">
+      <button class="tab-btn active" onclick="showTab('node','linux')">Linux</button>
+      <button class="tab-btn" onclick="showTab('node','mac')">macOS</button>
+    </div>
+
+    <div id="node-linux" class="tab-panel active">
+      <pre><code># Install dependencies
+apt install -y build-essential libtool autotools-dev automake pkg-config \
+  libssl-dev libevent-dev bsdmainutils python3 libboost-all-dev \
+  libdb5.3++-dev libminiupnpc-dev libzmq3-dev
+
+# Clone and build
+git clone https://github.com/sacredsynergy/Qweercoin.git
+cd Qweercoin
+./autogen.sh
+./configure --without-gui --disable-wallet
+make -j$(nproc)
+
+# Install
+cp src/qweercoind src/qweercoin-cli /usr/local/bin/</code></pre>
+    </div>
+
+    <div id="node-mac" class="tab-panel">
+      <pre><code># Install dependencies (Homebrew required)
+brew install autoconf automake libtool pkg-config openssl boost libevent
+
+# Clone and build
+git clone https://github.com/sacredsynergy/Qweercoin.git
+cd Qweercoin
+./autogen.sh
+./configure --without-gui --disable-wallet \
+  CPPFLAGS="-I/opt/homebrew/include" LDFLAGS="-L/opt/homebrew/lib"
+make -j$(sysctl -n hw.ncpu)
+
+# Install
+cp src/qweercoind src/qweercoin-cli /usr/local/bin/</code></pre>
+    </div>
+  </div>
+
+  <!-- Step 2: Configure -->
+  <div class="card">
+    <h2><span class="step-num">2</span> Configure the Node</h2>
+    <p>Create your config file. On Linux: <code>~/.qweercoin/qweercoin.conf</code> &nbsp;|&nbsp; On macOS: <code>~/Library/Application Support/Qweercoin/qweercoin.conf</code></p>
+    <pre><code>rpcuser=miner
+rpcpassword=changeme123
+rpcallowip=127.0.0.1
+server=1
+daemon=1
+addnode=66.42.97.210:9444</code></pre>
+    <p>Then start the node and let it sync:</p>
+    <pre><code>qweercoind</code></pre>
+    <p>Check sync progress:</p>
+    <pre><code>qweercoin-cli -rpcuser=miner -rpcpassword=changeme123 getblockcount</code></pre>
+  </div>
+
+  <!-- Step 3: Get cpuminer -->
+  <div class="card">
+    <h2><span class="step-num">3</span> Install cpuminer</h2>
+
+    <div class="tabs">
+      <button class="tab-btn active" onclick="showTab('miner','linux')">Linux</button>
+      <button class="tab-btn" onclick="showTab('miner','mac')">macOS</button>
+    </div>
+
+    <div id="miner-linux" class="tab-panel active">
+      <pre><code>apt install -y libcurl4-openssl-dev libjansson-dev
+
+git clone https://github.com/pooler/cpuminer.git
+cd cpuminer
+./autogen.sh
+./configure CFLAGS="-O3"
+make -j$(nproc)</code></pre>
+    </div>
+
+    <div id="miner-mac" class="tab-panel">
+      <pre><code>brew install curl jansson openssl
+
+git clone https://github.com/pooler/cpuminer.git
+cd cpuminer
+./autogen.sh
+./configure CFLAGS="-O3" \
+  CPPFLAGS="-I/opt/homebrew/opt/openssl@3/include -I/opt/homebrew/opt/jansson/include" \
+  LDFLAGS="-L/opt/homebrew/opt/openssl@3/lib -L/opt/homebrew/opt/jansson/lib"
+make -j$(sysctl -n hw.ncpu)</code></pre>
+    </div>
+  </div>
+
+  <!-- Step 4: Mine -->
+  <div class="card">
+    <h2><span class="step-num">4</span> Start Mining</h2>
+    <p>Replace <code>YOUR_QWR_ADDRESS</code> with your address from the <a href="/wallet/" style="color:#ffd700">QWR Wallet</a>:</p>
+    <pre><code>./minerd \
+  --algo=scrypt \
+  --url=http://127.0.0.1:9332 \
+  --user=miner \
+  --pass=changeme123 \
+  --coinbase-addr=YOUR_QWR_ADDRESS \
+  --threads=$(nproc)</code></pre>
+    <p>When you find a block you'll see:</p>
+    <pre><code>[timestamp] accepted: 1/1 (100.00%), xx.xx khash/s (yay!!!)</code></pre>
+
+    <div class="pool-notice">
+      ⛏ A public mining pool is coming soon — no node required, just point your miner at <strong>pool.qweercoin.com</strong>
+    </div>
+  </div>
+
+  <!-- Step 5: Get a wallet -->
+  <div class="card">
+    <h2>Need a QWR Wallet?</h2>
+    <p>Create a non-custodial wallet in your browser — works on desktop and mobile, no app store needed.</p>
+    <br>
+    <a href="/wallet/" class="back-btn">Open Wallet</a>
+  </div>
+
+  <div style="text-align:center">
+    <a href="/" class="back-btn">← Back to Qweercoin</a>
+  </div>
+
+  <footer>
+    &copy; 2026 Qweercoin &mdash;
+    <a href="https://github.com/sacredsynergy/Qweercoin" target="_blank">GitHub</a> &mdash;
+    <a href="https://bitcointalk.org/index.php?topic=5576413" target="_blank">Bitcointalk</a> &mdash;
+    <a href="https://instagram.com/qweercoin" target="_blank">Instagram</a> &mdash;
+    <a href="https://x.com/qweercoin" target="_blank">X</a>
+  </footer>
+
+</div>
+
+<script>
+  function showTab(group, os) {
+    document.querySelectorAll(`[id^="${group}-"]`).forEach(p => p.classList.remove('active'));
+    document.getElementById(`${group}-${os}`).classList.add('active');
+    event.target.closest('.card').querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    event.target.classList.add('active');
+  }
+</script>
+
+</body>
+</html>
