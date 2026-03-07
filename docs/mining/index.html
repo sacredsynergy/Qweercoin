@@ -296,10 +296,59 @@
     </div>
   </div>
 
+  <!-- Pool mining (easiest) -->
+  <div class="card">
+    <h2>⚡ Easiest: Pool Mining — No Node Required</h2>
+    <p>Just point cpuminer at our pool. Your wallet address is your username — you get the full block reward when you find a block.</p>
+    <pre><code>minerd --algo=scrypt \
+  --url=stratum+tcp://pool.qweercoin.com:3333 \
+  --user=YOUR_QWR_ADDRESS \
+  --pass=x \
+  --threads=$(nproc)</code></pre>
+    <p>Get a wallet at <a href="/wallet/" style="color:#ffd700">qweercoin.com/wallet/</a> · Get cpuminer in <strong>Step 3</strong> below.</p>
+  </div>
+
   <!-- Step 1: Get the node -->
   <div class="card">
-    <h2><span class="step-num">1</span> Run a QWR Node</h2>
-    <p>You need a running Qweercoin node to mine. Clone and build from source:</p>
+    <h2><span class="step-num">1</span> Run a QWR Node (Solo Mining)</h2>
+    <p>Download the pre-built binary or build from source:</p>
+
+    <div class="tabs">
+      <button class="tab-btn active" onclick="showTab('node1','binary')">Download Binary</button>
+      <button class="tab-btn" onclick="showTab('node1','source-linux')">Build Linux</button>
+      <button class="tab-btn" onclick="showTab('node1','source-mac')">Build macOS</button>
+    </div>
+
+    <div id="node1-binary" class="tab-panel active">
+      <p style="margin-bottom:0.6rem">Linux x86_64 (Ubuntu 22.04 LTS):</p>
+      <pre><code>wget https://github.com/sacredsynergy/Qweercoin/releases/download/v1.0.0/qweercoind
+wget https://github.com/sacredsynergy/Qweercoin/releases/download/v1.0.0/qweercoin-cli
+chmod +x qweercoind qweercoin-cli
+sudo mv qweercoind qweercoin-cli /usr/local/bin/</code></pre>
+    </div>
+
+    <div id="node1-source-linux" class="tab-panel">
+      <pre><code>apt install -y build-essential libtool autotools-dev automake pkg-config \
+  libssl-dev libevent-dev bsdmainutils python3 libboost-all-dev \
+  libdb5.3++-dev libminiupnpc-dev libzmq3-dev
+
+git clone https://github.com/sacredsynergy/Qweercoin.git
+cd Qweercoin && ./autogen.sh
+./configure --without-gui --disable-wallet
+make -j$(nproc)
+sudo cp src/qweercoind src/qweercoin-cli /usr/local/bin/</code></pre>
+    </div>
+
+    <div id="node1-source-mac" class="tab-panel">
+      <pre><code>brew install autoconf automake libtool pkg-config openssl boost libevent
+git clone https://github.com/sacredsynergy/Qweercoin.git
+cd Qweercoin && ./autogen.sh
+./configure --without-gui --disable-wallet \
+  CPPFLAGS="-I/opt/homebrew/include" LDFLAGS="-L/opt/homebrew/lib"
+make -j$(sysctl -n hw.ncpu)
+sudo cp src/qweercoind src/qweercoin-cli /usr/local/bin/</code></pre>
+    </div>
+  </div>
 
     <div class="tabs">
       <button class="tab-btn active" onclick="showTab('node','linux')">Linux</button>
@@ -403,7 +452,7 @@ make -j$(sysctl -n hw.ncpu)</code></pre>
     <pre><code>[timestamp] accepted: 1/1 (100.00%), xx.xx khash/s (yay!!!)</code></pre>
 
     <div class="pool-notice">
-      ⛏ A public mining pool is coming soon — no node required, just point your miner at <strong>pool.qweercoin.com</strong>
+      ⚡ Prefer pool mining? Skip the node — use <strong>stratum+tcp://pool.qweercoin.com:3333</strong> with your QWR address as username
     </div>
   </div>
 
